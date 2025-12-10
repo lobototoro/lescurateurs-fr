@@ -2,11 +2,9 @@ import { HeadContent, Scripts, createRootRouteWithContext } from "@tanstack/reac
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 
-import Header from "../components/Header";
-
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
-import StoreDevtools from "../lib/demo-store-devtools";
+import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 
@@ -48,8 +46,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="dark">
-        <Header />
         {children}
+        <Toaster />
         <TanStackDevtools
           config={{
             position: "bottom-right",
@@ -60,7 +58,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               render: <TanStackRouterDevtoolsPanel />,
             },
             TanStackQueryDevtools,
-            StoreDevtools,
           ]}
         />
         <Scripts />
