@@ -12,9 +12,6 @@
     "check": "biome check"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.1",
-    "@ai-sdk/mcp": "^0.0.5",
-    "@ai-sdk/react": "^2.0.8",
     "@modelcontextprotocol/sdk": "^1.8.0",
     "@netlify/vite-plugin-tanstack-start": "^1.0.2",
     "@radix-ui/react-label": "^2.1.8",
@@ -35,7 +32,6 @@
     "@tanstack/react-store": "^0.7.0",
     "@tanstack/router-plugin": "^1.132.0",
     "@tanstack/store": "^0.7.0",
-    "ai": "^5.0.8",
     "better-auth": "^1.4.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
