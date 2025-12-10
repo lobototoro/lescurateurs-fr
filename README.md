@@ -50,3 +50,8 @@ pnpx shadcn@latest add button
 ## History
 
 First a project started with nextjs 15, now migrating to tan stack start.
+
+- tailwind and shadcn blocks for styling
+- better-auth with drizzle as an ORM using supabase
+
+made with ❤️ on a mac.
