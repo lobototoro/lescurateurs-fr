@@ -7,6 +7,7 @@ import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { authClient } from "lib/auth/auth-client";
+import { useId } from "react";
 
 const formSchema = z.object({
   email: z.email("Email invalide"),
@@ -50,7 +51,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         </CardHeader>
         <CardContent>
           <form
-            id="login-form"
+            id={`login-form-${useId()}`}
             onSubmit={(e) => {
               e.preventDefault();
               form.handleSubmit();
