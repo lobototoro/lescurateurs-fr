@@ -17,7 +17,7 @@ export const getAllArticles = async () => {
     const articles = await fixedDb.query.articles.findMany();
 
     return articles;
-  } catch (error) {
+  } catch (_error) {
     throw new Error("Could not find any articles!");
   }
 };
@@ -27,7 +27,7 @@ export const getAllSlugs = async () => {
     const slugs = await fixedDb.query.slugs.findMany();
 
     return slugs;
-  } catch (error) {
+  } catch (_error) {
     throw new Error("Could not find any slugs!");
   }
 };
