@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { getAllSlugs } from "@/lib/articles/articles-functions";
 
@@ -13,7 +13,13 @@ function App() {
   return (
     <div>
       {slugs.map((slug) => {
-        return <div key={slug.id}>{slug.slug}</div>;
+        const articleId = slug.articleId;
+
+        return (
+          <div key={slug.id}>
+            <Link to={`/article/${articleId}` as `/article/$`}>{slug.slug}</Link>
+          </div>
+        );
       })}
     </div>
   );

@@ -1,4 +1,6 @@
 import { fixedDb } from "db/drizzle";
+import { articles } from "db/schema";
+import { eq } from "drizzle-orm";
 
 /*
  * Module for article and slug database operations.
@@ -29,5 +31,21 @@ export const getAllSlugs = async () => {
     return slugs;
   } catch (_error) {
     throw new Error("Could not find any slugs!");
+  }
+};
+
+export const fetchArticleById = async ({ articleId }: { articleId: string }) => {
+  try {
+    const article = await fixedDb.query.articles.findFirst({
+      where: eq(articles.id, parseInt(articleId, 10)),
+    });
+
+    if (!article) {
+      throw new Error(`Article with id ${articleId} not found`);
+    }
+
+    return article;
+  } catch (_error) {
+    throw new Error(`Could not find article with id ${articleId}`);
   }
 };
