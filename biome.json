@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**/src/**/*", "**/.vscode/**/*", "**/index.html", "**/vite.config.js", "!**/src/routeTree.gen.ts", "!**/src/styles.css"]
+    "includes": ["**/src/**/*", "**/.vscode/**/*", "**/index.html", "**/vite.config.js", "!**/src/routeTree.gen.ts", "!**/src/styles.css", "!**/src/components/ui"]
   },
   "formatter": {
     "enabled": true,
@@ -17,7 +17,10 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "correctness": {
+        "noChildrenProp": "off"
+      }
     }
   },
   "javascript": {
