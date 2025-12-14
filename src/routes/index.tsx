@@ -3,8 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { getAllSlugs } from "@/lib/articles/articles-functions";
 
 export const Route = createFileRoute("/")({
-  loader: async () => await getAllSlugs(),
   component: App,
+  loader: async () => await getAllSlugs(),
 });
 
 function App() {
@@ -13,11 +13,11 @@ function App() {
   return (
     <div>
       {slugs.map((slug) => {
-        const articleId = slug.articleId;
-
         return (
           <div key={slug.id}>
-            <Link to={`/article/${articleId}` as `/article/$`}>{slug.slug}</Link>
+            <Link to="/article/$slug" params={{ slug: slug.slug as string }}>
+              {slug.slug}
+            </Link>
           </div>
         );
       })}
