@@ -1,5 +1,5 @@
 import { fetchArticleBySlug } from "@/lib/articles/articles-functions";
-import { Article } from "@/models/articles";
+import type { Article } from "@/models/articles";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/article/$slug")({
@@ -14,7 +14,6 @@ export const Route = createFileRoute("/article/$slug")({
 
 function RouteComponent() {
   const article = Route.useLoaderData() as Article;
-  console.info(article);
 
   return <p>{article.main}</p>;
 }

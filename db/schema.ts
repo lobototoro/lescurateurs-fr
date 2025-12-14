@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index, pgEnum, bigint, json } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, index, pgEnum, bigint, jsonb } from "drizzle-orm/pg-core";
 
 export const rolesEnum = pgEnum("roles", ["admin", "contributor"]);
 
@@ -15,7 +15,7 @@ export const user = pgTable("user", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
   role: rolesEnum().default("contributor").notNull(),
-  permissions: json("permissions").default([]).notNull(),
+  permissions: jsonb("permissions").default([]).notNull(),
 });
 
 export const session = pgTable(
@@ -91,7 +91,7 @@ export const articles = pgTable("articles-development", {
   updated_by: text("updated_by"),
   author: text("author").notNull(),
   author_email: text("author_email").notNull(),
-  urls: json("urls"),
+  urls: jsonb("urls"),
   validated: boolean("validated").notNull(),
   shipped: boolean("shipped").notNull(),
 });
