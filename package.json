@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@tanstack/devtools-event-client": "^0.3.2",
     "@tanstack/devtools-vite": "^0.3.11",
     "@testing-library/dom": "^10.4.0",
