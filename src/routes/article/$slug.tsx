@@ -1,5 +1,4 @@
 import { fetchArticleBySlug } from "@/lib/articles/articles-functions";
-import type { Article } from "@/models/articles";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/article/$slug")({
@@ -8,12 +7,18 @@ export const Route = createFileRoute("/article/$slug")({
     const slug = params.slug;
     const article = await fetchArticleBySlug(slug);
 
-    return article;
+    // Fixing the type incompatibility by ensuring `urls` is either an object or undefined
+    const fixedArticle = {
+      ...article,
+      urls: article.urls ?? [],
+    };
+
+    return fixedArticle;
   },
 });
 
 function RouteComponent() {
-  const article = Route.useLoaderData() as Article;
+  const article = Route.useLoaderData();
 
   return <p>{article.main}</p>;
 }

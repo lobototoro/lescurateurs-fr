@@ -2,8 +2,8 @@ import { fixedDb } from "db/drizzle";
 import { eq } from "drizzle-orm";
 
 import { articles, slugs } from "db/schema";
-import type { Article } from "@/models/articles";
-import type { Slugs } from "@/models/slugs";
+// import type { Article } from "@/models/articles";
+// import type { Slugs } from "@/models/slugs";
 
 /**
  * Module for article and slug database operations.
@@ -16,7 +16,7 @@ import type { Slugs } from "@/models/slugs";
  *
  * @interface CustomResponseT
  */
-interface CustomResponseT {
+export interface CustomResponseT {
   /**
    * Indicates if the operation was successful.
    */
@@ -47,11 +47,11 @@ interface CustomResponseT {
  * console.log(allArticles.length);
  * ```
  */
-export const getAllArticles = async (): Promise<Article[]> => {
+export const getAllArticles = async (): Promise<(typeof articles.$inferInsert)[]> => {
   try {
     const articles = await fixedDb.query.articles.findMany();
 
-    return articles as Article[];
+    return articles;
   } catch (_error) {
     throw new Error("Could not find any articles!");
   }
@@ -72,7 +72,7 @@ export const getAllArticles = async (): Promise<Article[]> => {
  * console.log(allSlugs.length);
  * ```
  */
-export const getAllSlugs = async (): Promise<Slugs[]> => {
+export const getAllSlugs = async (): Promise<(typeof slugs.$inferInsert)[]> => {
   try {
     const slugs = await fixedDb.query.slugs.findMany();
 
@@ -100,7 +100,7 @@ export const getAllSlugs = async (): Promise<Slugs[]> => {
  * console.log(article.title);
  * ```
  */
-export const fetchArticleById = async (articleId: number): Promise<Article> => {
+export const fetchArticleById = async (articleId: number): Promise<typeof articles.$inferInsert> => {
   try {
     const article = await fixedDb.query.articles.findFirst({
       where: eq(articles.id, articleId),
@@ -110,7 +110,7 @@ export const fetchArticleById = async (articleId: number): Promise<Article> => {
       throw new Error(`Article with id ${articleId} not found`);
     }
 
-    return article as Article;
+    return article;
   } catch (_error) {
     throw new Error(`Could not find article with id ${articleId}`);
   }
@@ -131,7 +131,7 @@ export const fetchArticleById = async (articleId: number): Promise<Article> => {
  * console.log(article.title);
  * ```
  */
-export const fetchArticleBySlug = async (slug: string): Promise<Article> => {
+export const fetchArticleBySlug = async (slug: string): Promise<typeof articles.$inferInsert> => {
   try {
     const article = await fixedDb.query.articles.findFirst({
       where: eq(articles.slug, slug),
@@ -141,7 +141,7 @@ export const fetchArticleBySlug = async (slug: string): Promise<Article> => {
       throw new Error(`Article with id ${slug} not found`);
     }
 
-    return article as Article;
+    return article;
   } catch (_error) {
     throw new Error(`Could not find article with slug ${slug}`);
   }
@@ -171,7 +171,7 @@ export const fetchArticleBySlug = async (slug: string): Promise<Article> => {
  * }
  * ```
  */
-export const createSlug = async (slugObject: Omit<Slugs, "id">): Promise<CustomResponseT> => {
+export const createSlug = async (slugObject: Omit<typeof slugs.$inferInsert, "id">): Promise<CustomResponseT> => {
   try {
     const { slug, createdAt, articleId, validated } = slugObject;
     const createSlugResponse = await fixedDb
@@ -227,7 +227,7 @@ export const createSlug = async (slugObject: Omit<Slugs, "id">): Promise<CustomR
  * }
  * ```
  */
-export const createArticle = async (articleObject: Omit<Article, "id">): Promise<CustomResponseT> => {
+export const createArticle = async (articleObject: Omit<typeof articles.$inferInsert, "id">): Promise<CustomResponseT> => {
   try {
     const createArticleResponse = fixedDb
       .insert(articles)
@@ -294,7 +294,7 @@ export const createArticle = async (articleObject: Omit<Article, "id">): Promise
  * }
  * ```
  */
-export const updateArticle = async (id: number, articleObject: Omit<Article, "id" | "createdAt" | "title" | "slug">): Promise<CustomResponseT> => {
+export const updateArticle = async (id: number, articleObject: Omit<typeof articles.$inferInsert, "id" | "createdAt" | "title" | "slug">): Promise<CustomResponseT> => {
   try {
     const updateArticleResponse = fixedDb
       .update(articles)
