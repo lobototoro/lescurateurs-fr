@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Suspense } from "react";
 
 import { getAllSlugs } from "@/lib/articles/articles-functions";
 
@@ -11,7 +12,7 @@ function App() {
   const slugs = Route.useLoaderData();
 
   return (
-    <div>
+    <Suspense fallback={<h2>Loading...</h2>}>
       {slugs.map((slug) => {
         return (
           <div key={slug.id}>
@@ -21,6 +22,6 @@ function App() {
           </div>
         );
       })}
-    </div>
+    </Suspense>
   );
 }
