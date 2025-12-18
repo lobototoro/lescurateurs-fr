@@ -11,9 +11,10 @@ count.txt
 .output
 .vinxi
 todos.json
+coverage
 
 # Local Netlify folder
 .netlify
 
 # seeed file
-seed.ts*
+seed*
