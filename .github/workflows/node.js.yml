@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          cache: "pnpm"
       #- run: npm run build --if-present
       - name: Execute Unit tests
         env:
@@ -32,4 +32,4 @@ jobs:
           VITE_APP_URL: ${{ vars.VITE_APP_URL }}
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npm ci --legacy-peer-deps && npm run test
+        run: pnpm install && pnpm test
