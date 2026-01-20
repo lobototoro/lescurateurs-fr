@@ -34,7 +34,7 @@ export default function HeaderMenu({
   if (role === "admin") {
     definitivePermissions = stringifiedPermissions.toSpliced(3, 0, "manage:articles").toSpliced(-1, 0, "manage:user");
   } else {
-    definitivePermissions = stringifiedPermissions.toSpliced(2, 2, "manage:articles");
+    definitivePermissions = stringifiedPermissions.toSpliced(3, 1, "manage:articles");
   }
 
   const filteredMenu = definitivePermissions.map((permission: string, index: number) => {
@@ -45,7 +45,7 @@ export default function HeaderMenu({
     const transformedPermission = `${transformedPermission1}${transformedPermission2}`;
 
     return (
-      <li key={index.toString()}>
+      <li key={`menu-items-${index.toString()}`} className="mr-6">
         <Button
           className="navbar-item"
           variant={transformedPermission === selection ? "secondary" : "outline"}
@@ -62,7 +62,7 @@ export default function HeaderMenu({
 
   return (
     <nav className="w-3/4 m-auto flex flex-row flex-start justify-between" aria-label="main navigation">
-      <ol className="w-3/4 pt-4 pb-4 flex flex-row justify-between">{filteredMenu}</ol>
+      <ol className="w-3/4 pt-4 pb-4 flex flex-row">{filteredMenu}</ol>
       <div className="place-self-center">
         <h4>
           <strong>Role : {role}</strong>
