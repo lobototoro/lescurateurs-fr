@@ -3,6 +3,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
 import { fixedDb } from "../../db/drizzle";
 
+const perms = JSON.stringify(["read:articles", "create:articles", "update:articles", "validate:articles"]);
+
 export const auth = betterAuth({
   database: drizzleAdapter(fixedDb, {
     provider: "pg", // or "mysql", "sqlite"
@@ -22,7 +24,7 @@ export const auth = betterAuth({
       permissions: {
         type: "string",
         required: true,
-        defaultValue: JSON.stringify(["read:articles", "create:articles", "update:articles", "validate:articles"]),
+        defaultValue: perms,
         inup: true,
       },
     },

@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArticleSlugRouteImport } from './routes/article/$slug'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/editor': typeof EditorRoute
   '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/editor': typeof EditorRoute
   '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -60,27 +68,49 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/editor': typeof EditorRoute
   '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/editor' | '/login' | '/article/$slug' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/editor'
+    | '/login'
+    | '/signup'
+    | '/article/$slug'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/editor' | '/login' | '/article/$slug' | '/api/auth/$'
-  id: '__root__' | '/' | '/editor' | '/login' | '/article/$slug' | '/api/auth/$'
+  to: '/' | '/editor' | '/login' | '/signup' | '/article/$slug' | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/editor'
+    | '/login'
+    | '/signup'
+    | '/article/$slug'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EditorRoute: typeof EditorRoute
   LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
   ArticleSlugRoute: typeof ArticleSlugRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -123,6 +153,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EditorRoute: EditorRoute,
   LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
   ArticleSlugRoute: ArticleSlugRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
