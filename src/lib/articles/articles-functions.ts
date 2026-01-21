@@ -136,7 +136,7 @@ export const fetchArticleBySlug = async (slug: string): Promise<typeof articles.
     const article = await fixedDb.query.articles.findFirst({
       where: eq(articles.slug, slug),
     });
-    console.log("in article functions", article);
+
     if (!article) {
       throw new Error(`Article with id ${slug} not found`);
     }

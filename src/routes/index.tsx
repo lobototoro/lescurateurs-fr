@@ -1,11 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Suspense } from "react";
+import { createServerFn } from "@tanstack/react-start";
 
 import { getAllSlugs } from "@/lib/articles/articles-functions";
 
+export const getAllSlugsServer = createServerFn({ method: "GET" }).handler(async () => {
+  return await getAllSlugs();
+});
+
 export const Route = createFileRoute("/")({
   component: App,
-  loader: async () => await getAllSlugs(),
+  loader: async () => await getAllSlugsServer(),
 });
 
 function App() {
