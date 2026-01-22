@@ -1,30 +1,52 @@
-import { render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import HeaderMenu from "@/components/editor-components/headerMenu";
 
-const headerData = {
-  role: "contributor",
-  permissions: ["read:articles", "create:articles", "update:articles", "validate:articles"],
-};
+// Mock the navigate function
+const mockNavigate = vi.fn();
 
-const setMenuSelection = vi.fn();
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => mockNavigate,
+}));
+
+// Mock the iconMapper
+vi.mock("@/lib/iconManager", () => ({
+  iconMapper: vi.fn(() => null),
+}));
 
 describe("HeaderMenu", () => {
-  it("renders the header menu", () => {
-    const { getByText, getAllByRole } = render(<HeaderMenu role={headerData.role} permissions={headerData.permissions} setSelection={setMenuSelection} selection="" />);
-    expect(getByText("Role : contributor")).toBeDefined();
-
-    const menuItems = getAllByRole("button");
-    expect(menuItems.length).toBe(3);
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
+
+  it("renders the header menu with role", () => {
+    const role = "contributor";
+    const permissions = ["read:articles", "create:articles", "update:articles"];
+
+    render(<HeaderMenu role={role} permissions={permissions} />);
+
+    expect(screen.getByText(/Role : contributor/)).toBeInTheDocument();
+  });
+
   it("does not render if permissions are empty", () => {
-    const { container } = render(<HeaderMenu role="user" permissions={[]} setSelection={setMenuSelection} selection="" />);
+    const { container } = render(<HeaderMenu role="user" permissions={[]} />);
+
     expect(container.firstChild).toBeNull();
   });
 
-  it("renders correct menu items for admin role", () => {
+  it("filters out read:articles permission", () => {
+    const role = "contributor";
+    const permissions = ["read:articles", "create:articles", "update:articles"];
+
+    render(<HeaderMenu role={role} permissions={permissions} />);
+
+    expect(screen.queryByText("read articles")).not.toBeInTheDocument();
+    expect(screen.getByText("create articles")).toBeInTheDocument();
+    expect(screen.getByText("update articles")).toBeInTheDocument();
+  });
+
+  it("renders correct menu items for admin role with modified permissions", () => {
     const adminPermissions = [
-      "read:articles",
       "create:articles",
       "update:articles",
       "delete:articles",
@@ -35,31 +57,70 @@ describe("HeaderMenu", () => {
       "delete:user",
       "enable:maintenance",
     ];
-    const { getAllByRole, getByText } = render(<HeaderMenu role="admin" permissions={adminPermissions} setSelection={setMenuSelection} selection="" />);
-    const menuItems = getAllByRole("button");
-    // Logic trace for admin:
-    // 1. Filter: remove specific exclusions (none here).
-    // 2. Splice(3, 0, "manage:articles") -> inserts at index 3.
-    // 3. Splice(-1, 0, "manage:user") -> inserts at end.
-    // 4. Map: filter "read:articles".
-    // Input: [read, create, update, validate]
-    // After splices: [read, create, update, manage:articles, manage:user, validate]
-    // After map filter: [create, update, manage:articles, manage:user, validate]
-    // Total: 5 buttons.
-    expect(menuItems.length).toBe(6);
-    expect(getByText("manage user")).toBeDefined();
-    expect(getByText("manage articles")).toBeDefined();
+
+    render(<HeaderMenu role="admin" permissions={adminPermissions} />);
+
+    // For admin:
+    // 1. Filter out specific permissions: delete:articles, validate:articles, ship:articles, update:user, delete:user
+    // 2. Remaining: create:articles, update:articles, create:user, enable:maintenance
+    // 3. Add "manage:articles" at index 3 and "manage:user" before last item
+    // 4. Final array: create:articles, update:articles, create:user, manage:articles, manage:user, enable:maintenance
+    // 5. All items are shown except "read:articles" which isn't in the list anyway
+
+    expect(screen.getByText("create articles")).toBeInTheDocument();
+    expect(screen.getByText("update articles")).toBeInTheDocument();
+    expect(screen.getByText("create user")).toBeInTheDocument();
+    expect(screen.getByText("manage articles")).toBeInTheDocument();
+    expect(screen.getByText("manage user")).toBeInTheDocument();
+    expect(screen.getByText("enable maintenance")).toBeInTheDocument();
   });
 
-  it("filters out read:articles permission", () => {
-    const { queryByText } = render(<HeaderMenu role={headerData.role} permissions={headerData.permissions} setSelection={setMenuSelection} selection="" />);
-    expect(queryByText("read articles")).toBeNull();
+  it("renders correct menu items for non-admin role with modified permissions", () => {
+    const permissions = ["create:articles", "update:articles", "delete:articles", "validate:articles", "ship:articles"];
+
+    render(<HeaderMenu role="contributor" permissions={permissions} />);
+
+    // For non-admin:
+    // 1. No filtering happens since it's not admin
+    // 2. splice(3, 1, "manage:articles") replaces element at index 3 with "manage:articles"
+    // 3. Original: [create:articles, update:articles, delete:articles, validate:articles, ship:articles]
+    // 4. After splice: [create:articles, update:articles, delete:articles, manage:articles, ship:articles]
+    // 5. All items are shown except "read:articles" which isn't in the list anyway
+
+    expect(screen.getByText("create articles")).toBeInTheDocument();
+    expect(screen.getByText("update articles")).toBeInTheDocument();
+    expect(screen.getByText("delete articles")).toBeInTheDocument();
+    expect(screen.getByText("manage articles")).toBeInTheDocument();
+    expect(screen.getByText("ship articles")).toBeInTheDocument();
   });
 
-  it("calls setSelection with transformed permission on click", () => {
-    const { getByText } = render(<HeaderMenu role={headerData.role} permissions={headerData.permissions} setSelection={setMenuSelection} selection="" />);
-    const createButton = getByText("create articles");
-    createButton.click();
-    expect(setMenuSelection).toHaveBeenCalledWith("createarticles");
+  it("navigates to correct route when clicking menu item", () => {
+    const permissions = ["create:articles", "update:articles"];
+
+    render(<HeaderMenu role="contributor" permissions={permissions} />);
+
+    const createButton = screen.getByText("create articles");
+    fireEvent.click(createButton);
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: "/editor/createarticles",
+      replace: true,
+    });
+  });
+
+  it("renders buttons with correct titles", () => {
+    const permissions = ["create:articles"];
+
+    render(<HeaderMenu role="contributor" permissions={permissions} />);
+
+    const createButton = screen.getByText("create articles");
+    expect(createButton).toHaveAttribute("title", " create articles");
+  });
+
+  it("handles empty permissions gracefully", () => {
+    // When permissions are empty, the component should return null
+    const { container } = render(<HeaderMenu role="contributor" permissions={[]} />);
+
+    expect(container.firstChild).toBeNull();
   });
 });

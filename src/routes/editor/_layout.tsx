@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+
 import HeaderMenu from "@/components/editor-components/headerMenu";
 import { Button } from "@/components/ui/button";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 import { authClient } from "lib/auth/auth-client";
 import { authMiddleware } from "lib/auth/middleware";
 import { Separator } from "@/components/ui/separator";
 
-export const Route = createFileRoute("/editor")({
+export const Route = createFileRoute("/editor/_layout")({
   component: RouteComponent,
   server: {
     middleware: [authMiddleware],
@@ -15,7 +15,6 @@ export const Route = createFileRoute("/editor")({
 });
 
 function RouteComponent() {
-  const [selectedPermission, setSelectedPermission] = useState("");
   const { data: session } = authClient.useSession();
   const navigate = useNavigate();
   const logout = async () =>
@@ -38,15 +37,11 @@ function RouteComponent() {
           <div className="m-auto w-3/4">
             <Separator className="my-4" />
           </div>
-          <HeaderMenu
-            role={(session.user as any)?.role || ""}
-            permissions={(session.user as any)?.permissions}
-            setSelection={setSelectedPermission}
-            selection={selectedPermission}
-          />
+          <HeaderMenu role={(session.user as any)?.role || ""} permissions={(session.user as any)?.permissions} />
           <div className="m-auto w-3/4">
             <Separator className="my-4" />
           </div>
+          <Outlet />
           <div className="place-self-stretch">
             <Button onClick={logout}>Logout</Button>
           </div>

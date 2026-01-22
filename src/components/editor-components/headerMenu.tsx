@@ -1,19 +1,8 @@
-"use client";
-import type React from "react";
-
+import { useNavigate } from "@tanstack/react-router";
 import { iconMapper } from "@/lib/iconManager";
 import { Button } from "@/components/ui/button";
-export default function HeaderMenu({
-  role,
-  permissions,
-  setSelection,
-  selection,
-}: {
-  role: string;
-  permissions: string[];
-  setSelection: React.Dispatch<React.SetStateAction<string>>;
-  selection: string;
-}) {
+export default function HeaderMenu({ role, permissions }: { role: string; permissions: string[] }) {
+  const navigate = useNavigate();
   // NEX-50: whikle working on modal and notif, we simplify BO menu
   let definitivePermissions = [];
   const permissionsArray = Array.isArray(permissions) ? permissions : [];
@@ -48,8 +37,13 @@ export default function HeaderMenu({
       <li key={`menu-items-${index.toString()}`} className="mr-6">
         <Button
           className="navbar-item"
-          variant={transformedPermission === selection ? "secondary" : "outline"}
-          onClick={() => setSelection(transformedPermission)}
+          variant="outline"
+          onClick={() =>
+            navigate({
+              to: `/editor/${transformedPermission}`,
+              replace: true,
+            })
+          }
           title={` ${transformedPermission1} ${transformedPermission2}`}
         >
           {iconMapper(permission)}
