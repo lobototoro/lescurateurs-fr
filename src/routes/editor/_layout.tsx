@@ -30,7 +30,7 @@ function RouteComponent() {
     });
 
   return (
-    <div className="flex flex-col items-center justify-center w-full">
+    <div className="w-3/4 m-auto">
       {session && (
         <section className="w-full h-full m-auto">
           <h1 className="text-4xl font-bold font-titles text-center w-full mt-4 mb-4">Les Curateurs: editor</h1>
@@ -42,7 +42,7 @@ function RouteComponent() {
             <Separator className="my-4" />
           </div>
           <Outlet />
-          <div className="place-self-stretch">
+          <div className="w-full text-right mt-7 mb-7">
             <Button onClick={logout}>Logout</Button>
           </div>
         </section>

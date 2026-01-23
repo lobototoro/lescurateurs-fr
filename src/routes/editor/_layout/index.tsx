@@ -5,5 +5,5 @@ export const Route = createFileRoute("/editor/_layout/")({
 });
 
 function RouteComponent() {
-  return <div>index of editor</div>;
+  return <h2 className="w-full text-center mt-7 mb-7">Welcome Curator!</h2>;
 }
