@@ -1,6 +1,6 @@
 ---
 
-# LCFR - nextjs version
+# LCFR - tanstack start version
 
 Beginning a tanstack start project.
 In the future it will be a mobile-only webzine, but desktop displayed backoffice.
