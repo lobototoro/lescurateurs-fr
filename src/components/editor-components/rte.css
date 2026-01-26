@@ -1,0 +1,13 @@
+.ql-toolbar.ql-snow {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-color: rgb(53, 58, 70);
+    /* border-bottom: none; */
+    background-color: rgb(33, 37, 41);
+}
+.custom-text-area {
+    height: 400px;
+    border-color: rgb(53, 58, 70) !important;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
