@@ -22,33 +22,31 @@ export function AddUrlsObjects({
   removeInputs: () => void;
 }) {
   return (
-    <>
-      <div className="flex flex-col w-full" data-testid="url-inputs-container">
-        {urls?.map(({ type, url, credits }, index: number) => (
-          <UrlObjectItem key={urls[index].url || `add-url-${index}`} type={type} url={url} credits={credits} index={index} addUrls={updateUrls} />
-        ))}
-        <div className="w-full left flex flex-row mt-6">
-          <Button
-            variant="outline"
-            className="mr-7"
-            onClick={(e) => {
-              preventClickActions(e);
-              addInputs();
-            }}
-          >
-            <Plus color="white" size={24} />
-          </Button>
-          <Button
-            variant="outline"
-            onClick={(e) => {
-              preventClickActions(e);
-              removeInputs();
-            }}
-          >
-            <Minus color="white" size={24} />
-          </Button>
-        </div>
+    <div className="flex flex-col w-full" data-testid="url-inputs-container">
+      {urls?.map(({ type, url, credits }, index: number) => (
+        <UrlObjectItem key={urls[index].url || `add-url-${index}`} type={type} url={url} credits={credits} index={index} addUrls={updateUrls} />
+      ))}
+      <div className="w-full left flex flex-row mt-6">
+        <Button
+          variant="outline"
+          className="mr-7"
+          onClick={(e) => {
+            preventClickActions(e);
+            addInputs();
+          }}
+        >
+          <Plus color="white" size={24} />
+        </Button>
+        <Button
+          variant="outline"
+          onClick={(e) => {
+            preventClickActions(e);
+            removeInputs();
+          }}
+        >
+          <Minus color="white" size={24} />
+        </Button>
       </div>
-    </>
+    </div>
   );
 }

@@ -93,15 +93,14 @@ export function UrlObjectItem({
           onClick={(e) => {
             preventClickActions(e);
             setToBeUpdated(false);
-            addUrls &&
-              addUrls(
-                {
-                  type: selectedValue,
-                  url: givenUrl,
-                  credits: givenCredits,
-                },
-                index,
-              );
+            addUrls?.(
+              {
+                type: selectedValue,
+                url: givenUrl,
+                credits: givenCredits,
+              },
+              index,
+            );
           }}
         >
           Ajoutez
