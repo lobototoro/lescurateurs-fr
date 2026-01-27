@@ -6,6 +6,9 @@ import { z } from "zod";
 import { useForm } from "@tanstack/react-form";
 import type { AnyFieldApi } from "@tanstack/react-form";
 import RTE from "@/components/editor-components/rte";
+import { AddUrlsObjects } from "./addUrls";
+import { addRemoveInputsFactory } from "@/lib/utils/addUrlsUtils";
+import { preventClickActions } from "@/lib/utils/utils";
 
 export function FieldInfo({ field }: { field: AnyFieldApi }) {
   const errors = field.state.meta.errors.map((error: any, index: number) => {
@@ -169,12 +172,27 @@ export const FormMarkup = ({ defaultformValues, submitAction }: { defaultformVal
               </>
             )}
           />
-        </FieldSet>
-        <FieldSeparator />
 
-        <Button type="submit" onClick={() => form.handleSubmit()}>
-          Soumettre
-        </Button>
+          <FieldSeparator />
+          <FieldDescription className="text-md font-semibold">Ajouter un ou des urls à votre article</FieldDescription>
+          <form.Field
+            name="urls"
+            children={(field) => {
+              const [addInputs, removeInputs, updateUrls] = addRemoveInputsFactory(field.state.value, field.handleChange);
+
+              return <AddUrlsObjects urls={field.state.value} updateUrls={updateUrls} addInputs={addInputs} removeInputs={removeInputs} />;
+            }}
+          />
+          <Button
+            type="submit"
+            onClick={(e) => {
+              preventClickActions(e);
+              form.handleSubmit();
+            }}
+          >
+            Soumettre
+          </Button>
+        </FieldSet>
       </FieldGroup>
     </form>
   );

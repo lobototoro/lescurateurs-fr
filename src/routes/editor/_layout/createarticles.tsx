@@ -26,7 +26,7 @@ export const formDefaultValues: FormValues = {
 
 function RouteComponent() {
   return (
-    <section>
+    <section className="w-3/4 mx-auto">
       <FormMarkup
         defaultformValues={formDefaultValues}
         submitAction={async (values) => {

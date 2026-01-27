@@ -1,0 +1,18 @@
+@keyframes fade {
+    from {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+        background-color: var(--accent-bonbon-red);
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.blink {
+    animation: fade 1500ms ease-in infinite;
+}

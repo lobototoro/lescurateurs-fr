@@ -34,9 +34,9 @@ export default function HeaderMenu({ role, permissions }: { role: string; permis
     const transformedPermission = `${transformedPermission1}${transformedPermission2}`;
 
     return (
-      <li key={`menu-items-${index.toString()}`} className="mr-6">
+      <li key={`menu-items-${index.toString()}`}>
         <Button
-          className="navbar-item"
+          className="navbar-item text-sm font-light"
           variant="outline"
           onClick={() =>
             navigate({
@@ -55,9 +55,9 @@ export default function HeaderMenu({ role, permissions }: { role: string; permis
   });
 
   return (
-    <nav className="w-3/4 m-auto flex flex-row flex-start justify-between" aria-label="main navigation">
-      <ol className="w-3/4 pt-4 pb-4 flex flex-row">{filteredMenu}</ol>
-      <div className="place-self-center">
+    <nav className="w-3/4 m-auto flex flex-col flex-start" aria-label="main navigation">
+      <ol className="w^full pt-2 pb-2 flex flex-row justify-evenly">{filteredMenu}</ol>
+      <div className="flex justify-end mr-4">
         <h4>
           <strong>Role : {role}</strong>
         </h4>
