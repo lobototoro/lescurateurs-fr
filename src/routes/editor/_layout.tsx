@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 
 import HeaderMenu from "@/components/editor-components/headerMenu";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 
 import { authClient } from "lib/auth/auth-client";
 import { authMiddleware } from "lib/auth/middleware";
@@ -37,14 +37,11 @@ function RouteComponent() {
           <div className="m-auto w-3/4">
             <Separator className="my-4" />
           </div>
-          <HeaderMenu role={(session.user as any)?.role || ""} permissions={(session.user as any)?.permissions} />
+          <HeaderMenu role={(session.user as any)?.role || ""} permissions={(session.user as any)?.permissions} logoutAction={logout} />
           <div className="m-auto w-3/4">
             <Separator className="my-4" />
           </div>
           <Outlet />
-          <div className="w-full text-right mt-7 mb-7">
-            <Button onClick={logout}>Logout</Button>
-          </div>
         </section>
       )}
     </div>

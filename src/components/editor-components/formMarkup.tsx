@@ -13,8 +13,8 @@ import { preventClickActions } from "@/lib/utils/utils";
 export function FieldInfo({ field }: { field: AnyFieldApi }) {
   const errors = field.state.meta.errors.map((error: any, index: number) => {
     return (
-      <p key={`${field.name}-${index}`} className="text-red-500">
-        {error?.message as string}
+      <p key={`error-${field.name}-${index}`} className="text-red-500">
+        <em>{error?.message as string}</em>
       </p>
     );
   });
@@ -61,7 +61,6 @@ export const FormMarkup = ({ defaultformValues, submitAction }: { defaultformVal
       onChange: formSchema,
     },
     onSubmit: ({ value }) => {
-      console.log(">>>>>>> ", value);
       submitAction(value);
     },
   });
@@ -183,15 +182,34 @@ export const FormMarkup = ({ defaultformValues, submitAction }: { defaultformVal
               return <AddUrlsObjects urls={field.state.value} updateUrls={updateUrls} addInputs={addInputs} removeInputs={removeInputs} />;
             }}
           />
-          <Button
-            type="submit"
-            onClick={(e) => {
-              preventClickActions(e);
-              form.handleSubmit();
-            }}
-          >
-            Soumettre
-          </Button>
+
+          <FieldSeparator />
+          <div className="flex justify-between mt-6">
+            <Button
+              variant="destructive"
+              onClick={(e) => {
+                preventClickActions(e);
+                form.reset();
+              }}
+            >
+              Effacez
+            </Button>
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
+              children={([canSubmit, isSubmitting]) => (
+                <Button
+                  type="submit"
+                  disabled={!canSubmit}
+                  onClick={(e) => {
+                    preventClickActions(e);
+                    form.handleSubmit();
+                  }}
+                >
+                  {isSubmitting ? "..." : "Soumettre"}
+                </Button>
+              )}
+            />
+          </div>
         </FieldSet>
       </FieldGroup>
     </form>

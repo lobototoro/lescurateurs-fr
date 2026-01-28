@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { iconMapper } from "@/lib/iconManager";
 import { Button } from "@/components/ui/button";
-export default function HeaderMenu({ role, permissions }: { role: string; permissions: string[] }) {
+export default function HeaderMenu({ role, permissions, logoutAction }: { role: string; permissions: string[]; logoutAction: () => void }) {
   const navigate = useNavigate();
   // NEX-50: whikle working on modal and notif, we simplify BO menu
   let definitivePermissions = [];
@@ -57,10 +57,13 @@ export default function HeaderMenu({ role, permissions }: { role: string; permis
   return (
     <nav className="w-3/4 m-auto flex flex-col flex-start" aria-label="main navigation">
       <ol className="w^full pt-2 pb-2 flex flex-row justify-evenly">{filteredMenu}</ol>
-      <div className="flex justify-end mr-4">
+      <div className="flex justify-end mr-4 mt-4 items-center">
         <h4>
           <strong>Role : {role}</strong>
         </h4>
+        <Button className="ml-4" onClick={logoutAction}>
+          Logout
+        </Button>
       </div>
     </nav>
   );
