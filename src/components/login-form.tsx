@@ -35,7 +35,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
             toast.success("Form submitted successfully");
           },
           onError: (ctx) => {
-            toast.error(ctx.error.message || "Somethinig went wrong");
+            toast.error(ctx.error.message || "Something went wrong");
           },
         },
       );

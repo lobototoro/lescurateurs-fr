@@ -3,6 +3,8 @@ import { pgTable, text, timestamp, boolean, index, pgEnum, bigint, jsonb } from 
 
 export const rolesEnum = pgEnum("roles", ["admin", "contributor"]);
 
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -78,7 +80,7 @@ export const verification = pgTable(
 );
 
 export const articles = pgTable("articles-development", {
-  id: bigint("id", { mode: "number" }).primaryKey(), // identity BY DEFAULT (bigint)
+  id: text("id").primaryKey(),
   slug: text("slug").notNull(),
   title: text("title").notNull(),
   introduction: text("introduction").notNull(),
@@ -99,10 +101,10 @@ export const articles = pgTable("articles-development", {
 export const slugs = pgTable(
   "slugs-development",
   {
-    id: bigint("id", { mode: "number" }).primaryKey(),
+    id: text("id").primaryKey(),
     slug: text("slug").notNull(),
     createdAt: timestamp("created_at", { mode: "string" }).notNull(),
-    articleId: bigint("article_id", { mode: "number" })
+    articleId: text("article_id")
       .notNull()
       .references(() => articles.id, { onDelete: "cascade" }),
     validated: boolean("validated").default(false),

@@ -1,6 +1,8 @@
 import { fixedDb } from "db/drizzle";
 import { eq } from "drizzle-orm";
+import slugify from "slugify";
 
+import type { Json } from "db/schema";
 import { articles, slugs } from "db/schema";
 // import type { Article } from "@/models/articles";
 // import type { Slugs } from "@/models/slugs";
@@ -177,7 +179,7 @@ export const createSlug = async (slugObject: Omit<typeof slugs.$inferInsert, "id
     const createSlugResponse = await fixedDb
       .insert(slugs)
       .values({
-        id: 0, // placeholder id, will be auto-generated
+        id: "0", // placeholder id, will be auto-generated
         slug,
         createdAt,
         articleId,
@@ -227,19 +229,39 @@ export const createSlug = async (slugObject: Omit<typeof slugs.$inferInsert, "id
  * }
  * ```
  */
-export const createArticle = async (articleObject: Omit<typeof articles.$inferInsert, "id">): Promise<CustomResponseT> => {
+export const createArticle = async (articleObject: FormData): Promise<CustomResponseT> => {
+  console.log(articleObject);
+
+  const article = {
+    title: articleObject.get("title") as string,
+    introduction: articleObject.get("introduction") as string,
+    main: articleObject.get("main"),
+    urls: JSON.stringify(articleObject.get("urls")) as Json,
+    main_audio_url: articleObject.get("main_audio_url") as string,
+    url_to_main_illustration: articleObject.get("url_to_main_illustration") as string,
+    created_at: new Date().toISOString(),
+    updated_at: null,
+    updated_by: null,
+    published_at: null,
+    author: "pablo", // to be filled with current session user in the next ticket
+    author_email: "pablo@example.com", // to be filled with current session user eamil in the next ticket
+    validated: false,
+    shipped: false,
+    slug: slugify(articleObject.get("title") as string, { lower: true, remove: /[*+~.()'"!:@]/g }),
+  };
+
   try {
     const createArticleResponse = fixedDb
       .insert(articles)
       .values({
-        id: 0,
-        ...articleObject,
+        ...(article as typeof articles.$inferInsert),
+        id: "0",
       })
       .returning({
         returningArticleId: articles.id,
       });
 
-    console.log("article creation response ", createArticleResponse);
+    console.log("article creation response ", createArticleResponse, " >> ", (await createArticleResponse)[0]?.returningArticleId);
 
     if (!createArticleResponse) {
       return {
@@ -249,7 +271,7 @@ export const createArticle = async (articleObject: Omit<typeof articles.$inferIn
       };
     }
     await createSlug({
-      slug: articleObject.slug,
+      slug: article.slug,
       createdAt: new Date().toString(),
       articleId: (await createArticleResponse)[0]?.returningArticleId,
       validated: false,
@@ -258,7 +280,7 @@ export const createArticle = async (articleObject: Omit<typeof articles.$inferIn
     return {
       isSuccess: true,
       status: 200,
-      message: "Article created successfully",
+      message: "Article & slug created successfully",
     };
   } catch (error) {
     const errMessage = `Could not create article: ${error}`;
