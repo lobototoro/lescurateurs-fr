@@ -79,7 +79,7 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-export const articles = pgTable("articles-development", {
+export const articles = pgTable("articles_development", {
   id: text("id").primaryKey(),
   slug: text("slug").notNull(),
   title: text("title").notNull(),
@@ -87,9 +87,9 @@ export const articles = pgTable("articles-development", {
   main: text("main").notNull(),
   main_audio_url: text("main_audio_url").notNull(),
   url_to_main_illustration: text("url_to_main_illustration").notNull(),
-  published_at: timestamp("published_at", { mode: "string" }),
-  created_at: timestamp("created_at", { mode: "string" }).notNull(),
-  updated_at: timestamp("updated_at", { mode: "string" }),
+  published_at: timestamp("published_at", { mode: "string", withTimezone: true }),
+  created_at: timestamp("created_at", { mode: "string", withTimezone: true }).notNull(),
+  updated_at: timestamp("updated_at", { mode: "string", withTimezone: true }),
   updated_by: text("updated_by"),
   author: text("author").notNull(),
   author_email: text("author_email").notNull(),
@@ -99,11 +99,11 @@ export const articles = pgTable("articles-development", {
 });
 
 export const slugs = pgTable(
-  "slugs-development",
+  "slugs_development",
   {
     id: text("id").primaryKey(),
     slug: text("slug").notNull(),
-    createdAt: timestamp("created_at", { mode: "string" }).notNull(),
+    createdAt: timestamp("created_at", { mode: "string", withTimezone: true }).notNull(),
     articleId: text("article_id")
       .notNull()
       .references(() => articles.id, { onDelete: "cascade" }),

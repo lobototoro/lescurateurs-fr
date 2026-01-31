@@ -4,8 +4,7 @@ import slugify from "slugify";
 
 import type { Json } from "db/schema";
 import { articles, slugs } from "db/schema";
-// import type { Article } from "@/models/articles";
-// import type { Slugs } from "@/models/slugs";
+import { ulid } from "ulid";
 
 /**
  * Module for article and slug database operations.
@@ -102,7 +101,7 @@ export const getAllSlugs = async (): Promise<(typeof slugs.$inferInsert)[]> => {
  * console.log(article.title);
  * ```
  */
-export const fetchArticleById = async (articleId: number): Promise<typeof articles.$inferInsert> => {
+export const fetchArticleById = async (articleId: string): Promise<typeof articles.$inferInsert> => {
   try {
     const article = await fixedDb.query.articles.findFirst({
       where: eq(articles.id, articleId),
@@ -173,21 +172,23 @@ export const fetchArticleBySlug = async (slug: string): Promise<typeof articles.
  * }
  * ```
  */
-export const createSlug = async (slugObject: Omit<typeof slugs.$inferInsert, "id">): Promise<CustomResponseT> => {
+export const createSlug = async (slugObject: typeof slugs.$inferInsert): Promise<CustomResponseT> => {
   try {
-    const { slug, createdAt, articleId, validated } = slugObject;
-    const createSlugResponse = await fixedDb
+    const { id, slug, createdAt, articleId, validated } = slugObject;
+
+    await fixedDb
       .insert(slugs)
       .values({
-        id: "0", // placeholder id, will be auto-generated
+        id,
         slug,
         createdAt,
         articleId,
         validated,
       })
+      .onConflictDoNothing({
+        target: slugs.id,
+      })
       .returning();
-
-    console.log("create Slug response ", createSlugResponse);
 
     return {
       isSuccess: true,
@@ -230,13 +231,11 @@ export const createSlug = async (slugObject: Omit<typeof slugs.$inferInsert, "id
  * ```
  */
 export const createArticle = async (articleObject: FormData): Promise<CustomResponseT> => {
-  console.log(articleObject);
-
   const article = {
     title: articleObject.get("title") as string,
     introduction: articleObject.get("introduction") as string,
     main: articleObject.get("main"),
-    urls: JSON.stringify(articleObject.get("urls")) as Json,
+    urls: JSON.parse(articleObject.get("urls") as string) as Json,
     main_audio_url: articleObject.get("main_audio_url") as string,
     url_to_main_illustration: articleObject.get("url_to_main_illustration") as string,
     created_at: new Date().toISOString(),
@@ -251,37 +250,42 @@ export const createArticle = async (articleObject: FormData): Promise<CustomResp
   };
 
   try {
+    const articleGeneratedId = ulid();
     const createArticleResponse = fixedDb
       .insert(articles)
       .values({
         ...(article as typeof articles.$inferInsert),
-        id: "0",
+        id: articleGeneratedId,
+      })
+      .onConflictDoNothing({
+        target: articles.id,
       })
       .returning({
         returningArticleId: articles.id,
       });
 
-    console.log("article creation response ", createArticleResponse, " >> ", (await createArticleResponse)[0]?.returningArticleId);
-
-    if (!createArticleResponse) {
-      return {
-        isSuccess: false,
-        status: 400,
-        message: "Article creation failed",
-      };
-    }
-    await createSlug({
+    const slugGeneratedId = ulid();
+    const createSlugResponse = await createSlug({
+      id: slugGeneratedId,
       slug: article.slug,
-      createdAt: new Date().toString(),
+      createdAt: new Date().toISOString(),
       articleId: (await createArticleResponse)[0]?.returningArticleId,
       validated: false,
     });
 
-    return {
-      isSuccess: true,
-      status: 200,
-      message: "Article & slug created successfully",
-    };
+    if (createSlugResponse.isSuccess) {
+      return {
+        isSuccess: true,
+        status: 200,
+        message: "Article & slug created successfully",
+      };
+    } else {
+      return {
+        isSuccess: false,
+        status: 400,
+        message: "Article & slug creation failed",
+      };
+    }
   } catch (error) {
     const errMessage = `Could not create article: ${error}`;
     console.error(errMessage);
@@ -316,7 +320,7 @@ export const createArticle = async (articleObject: FormData): Promise<CustomResp
  * }
  * ```
  */
-export const updateArticle = async (id: number, articleObject: Omit<typeof articles.$inferInsert, "id" | "createdAt" | "title" | "slug">): Promise<CustomResponseT> => {
+export const updateArticle = async (id: string, articleObject: Omit<typeof articles.$inferInsert, "id" | "createdAt" | "title" | "slug">): Promise<CustomResponseT> => {
   try {
     const updateArticleResponse = fixedDb
       .update(articles)
@@ -361,7 +365,7 @@ export const updateArticle = async (id: number, articleObject: Omit<typeof artic
  * }
  * ```
  */
-export const deleteArticle = async (id: number): Promise<CustomResponseT> => {
+export const deleteArticle = async (id: string): Promise<CustomResponseT> => {
   try {
     const deleteArticleResponse = fixedDb.delete(articles).where(eq(articles.id, id));
 
@@ -402,7 +406,7 @@ export const deleteArticle = async (id: number): Promise<CustomResponseT> => {
  * }
  * ```
  */
-export const validateArticle = async (id: number, validation: boolean): Promise<CustomResponseT> => {
+export const validateArticle = async (id: string, validation: boolean): Promise<CustomResponseT> => {
   try {
     const validateArticleResponse = fixedDb
       .update(articles)
@@ -448,7 +452,7 @@ export const validateArticle = async (id: number, validation: boolean): Promise<
  * }
  * ```
  */
-export const shipArticle = async (id: number, shipValue: boolean): Promise<CustomResponseT> => {
+export const shipArticle = async (id: string, shipValue: boolean): Promise<CustomResponseT> => {
   try {
     const actualStatus = await fetchArticleById(id);
 
