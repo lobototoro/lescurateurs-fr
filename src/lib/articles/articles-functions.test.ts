@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
+import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import * as articlesFunctions from "./articles-functions";
 import { fixedDb } from "db/drizzle";
 
