@@ -163,20 +163,6 @@ describe("articles-functions", () => {
   });
 
   describe("createSlug", () => {
-    beforeEach(() => {
-      // Reset all mocks before each test
-      // Access the actual mock functions that were created in the vi.mock factory
-      const mockInsert = fixedDb.insert;
-      const mockValues = mockInsert().values;
-      const mockOnConflictDoNothing = mockValues().onConflictDoNothing;
-      const mockReturning = mockOnConflictDoNothing().returning;
-
-      mockInsert.mockClear();
-      mockValues.mockClear();
-      mockOnConflictDoNothing.mockClear();
-      mockReturning.mockClear();
-    });
-
     it("should create a slug and return success response", async () => {
       const slugObject = {
         id: "a",
@@ -186,17 +172,17 @@ describe("articles-functions", () => {
         validated: true,
       };
 
-      // Get references to the actual mock instances that will be called
-      const mockValues = fixedDb.insert().values;
-      const mockOnConflictDoNothing = mockValues().onConflictDoNothing;
-      const mockReturning = mockOnConflictDoNothing().returning;
+      const mockReturning = vi.fn().mockResolvedValue([]);
+      const mockOnConflictDoNothing = vi.fn().mockReturnValue({ returning: mockReturning });
+      const mockValues = vi.fn().mockReturnValue({ onConflictDoNothing: mockOnConflictDoNothing });
+      const mockInsert = vi.fn().mockReturnValue({ values: mockValues });
 
-      // Set up the mock to resolve successfully
-      mockReturning.mockResolvedValue([]);
+      // Override the fixedDb.insert for this test
+      Object.defineProperty(fixedDb, "insert", { value: mockInsert, writable: true });
 
       const result = await articlesFunctions.createSlug(slugObject);
 
-      expect(fixedDb.insert).toHaveBeenCalledWith(expect.any(Object));
+      expect(mockInsert).toHaveBeenCalledWith(expect.any(Object));
       expect(mockValues).toHaveBeenCalledWith({
         id: "a",
         slug: "new-slug",
@@ -204,7 +190,6 @@ describe("articles-functions", () => {
         articleId: "1",
         validated: true,
       });
-      // Check that onConflictDoNothing was called (the exact args depend on the implementation)
       expect(mockOnConflictDoNothing).toHaveBeenCalled();
       expect(result).toEqual({
         isSuccess: true,
@@ -222,17 +207,17 @@ describe("articles-functions", () => {
         validated: true,
       };
 
-      // Get references to the actual mock instances that will be called
-      const mockValues = fixedDb.insert().values;
-      const mockOnConflictDoNothing = mockValues().onConflictDoNothing;
-      const mockReturning = mockOnConflictDoNothing().returning;
+      const mockReturning = vi.fn().mockRejectedValue(new Error("Database error"));
+      const mockOnConflictDoNothing = vi.fn().mockReturnValue({ returning: mockReturning });
+      const mockValues = vi.fn().mockReturnValue({ onConflictDoNothing: mockOnConflictDoNothing });
+      const mockInsert = vi.fn().mockReturnValue({ values: mockValues });
 
-      // Set up the mock to reject
-      mockReturning.mockRejectedValue(new Error("Database error"));
+      // Override the fixedDb.insert for this test
+      Object.defineProperty(fixedDb, "insert", { value: mockInsert, writable: true });
 
       const result = await articlesFunctions.createSlug(slugObject);
 
-      expect(fixedDb.insert).toHaveBeenCalledWith(expect.any(Object));
+      expect(mockInsert).toHaveBeenCalledWith(expect.any(Object));
       expect(mockValues).toHaveBeenCalledWith({
         id: "a",
         slug: "new-slug",
@@ -240,7 +225,6 @@ describe("articles-functions", () => {
         articleId: "1",
         validated: true,
       });
-      // Check that onConflictDoNothing was called (the exact args depend on the implementation)
       expect(mockOnConflictDoNothing).toHaveBeenCalled();
       expect(result).toEqual({
         isSuccess: false,
@@ -256,22 +240,36 @@ describe("articles-functions", () => {
       articleObject.set("title", "Test Title");
       articleObject.set("introduction", "Test Introduction");
       articleObject.set("main", "Test Main Content");
-      articleObject.set("urls", "[]");
+      articleObject.set("urls", JSON.stringify([]));
       articleObject.set("main_audio_url", "");
       articleObject.set("url_to_main_illustration", "");
       articleObject.set("author", "Test Author");
       articleObject.set("author_email", "test@example.com");
 
-      // Get references to the actual mock instances that will be called
-      const mockValues = fixedDb.insert().values;
-      const mockOnConflictDoNothing = mockValues().onConflictDoNothing;
-      const mockReturning = mockOnConflictDoNothing().returning;
+      const mockReturning = vi.fn().mockRejectedValue(new Error("Database error"));
+      const mockOnConflictDoNothing = vi.fn().mockReturnValue({ returning: mockReturning });
+      const mockValues = vi.fn().mockReturnValue({ onConflictDoNothing: mockOnConflictDoNothing });
+      const mockInsert = vi.fn().mockReturnValue({ values: mockValues });
 
-      // Set up the mock to reject
-      mockReturning.mockRejectedValue(new Error("Database error"));
+      // Override the fixedDb.insert for this test
+      Object.defineProperty(fixedDb, "insert", { value: mockInsert, writable: true });
 
       const result = await articlesFunctions.createArticle(articleObject);
 
+      expect(mockInsert).toHaveBeenCalledWith(expect.any(Object));
+      expect(mockValues).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Test Title",
+          introduction: "Test Introduction",
+          main: "Test Main Content",
+          urls: [],
+          main_audio_url: "",
+          url_to_main_illustration: "",
+          author: "Test Author",
+          author_email: "test@example.com",
+        }),
+      );
+      expect(mockOnConflictDoNothing).toHaveBeenCalled();
       expect(result).toEqual({
         isSuccess: false,
         status: 400,
