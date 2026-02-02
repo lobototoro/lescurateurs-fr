@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { FormMarkup } from "@/components/editor-components/formMarkup";
 import { createArticle } from "@/lib/articles/articles-functions";
 import { createServerFn } from "@tanstack/react-start";
+import { authClient } from "lib/auth/auth-client";
 
 const createArticleServerFn = createServerFn({ method: "POST" })
   .inputValidator((data: FormData) => data)
@@ -33,6 +34,12 @@ export const formDefaultValues: FormValues = {
 };
 
 function RouteComponent() {
+  const { data: session } = authClient.useSession();
+  const userSessionInfos = {
+    email: session?.user.email ?? "",
+    name: session?.user.name ?? "",
+  };
+
   return (
     <section className="w-3/4 mx-auto">
       <FormMarkup
@@ -46,6 +53,8 @@ function RouteComponent() {
           formData.append("main_audio_url", values.main_audio_url);
           formData.append("url_to_main_illustration", values.url_to_main_illustration);
           formData.append("urls", JSON.stringify(values.urls));
+          formData.append("author_email", userSessionInfos.email);
+          formData.append("author", userSessionInfos.name);
 
           const response = await createArticleServerFn({ data: formData });
           if (!response.isSuccess) {

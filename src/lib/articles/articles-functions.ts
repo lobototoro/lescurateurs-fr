@@ -242,8 +242,8 @@ export const createArticle = async (articleObject: FormData): Promise<CustomResp
     updated_at: null,
     updated_by: null,
     published_at: null,
-    author: "pablo", // to be filled with current session user in the next ticket
-    author_email: "pablo@example.com", // to be filled with current session user eamil in the next ticket
+    author: articleObject.get("author") as string,
+    author_email: articleObject.get("author_email") as string,
     validated: false,
     shipped: false,
     slug: slugify(articleObject.get("title") as string, { lower: true, remove: /[*+~.()'"!:@]/g }),
