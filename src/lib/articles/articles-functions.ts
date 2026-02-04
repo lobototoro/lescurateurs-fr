@@ -2,8 +2,7 @@ import { fixedDb } from "db/drizzle";
 import { eq } from "drizzle-orm";
 import slugify from "slugify";
 
-import type { Json } from "db/schema";
-import { articles, slugs } from "db/schema";
+import { articles, slugs, type Json } from "db/schema";
 import { ulid } from "ulid";
 
 /**
