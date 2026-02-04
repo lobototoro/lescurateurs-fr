@@ -11,17 +11,17 @@ import { addRemoveInputsFactory } from "@/lib/utils/addUrlsUtils";
 import { preventClickActions } from "@/lib/utils/utils";
 
 export function FieldInfo({ field }: { field: AnyFieldApi }) {
-  const errors = field.state.meta.errors.map((error: any, index: number) => {
+  const errors = field.state.meta.errors.map((error: string, index: number) => {
     return (
       <p key={`error-${field.name}-${index}`} className="text-red-500">
-        <em>{error?.message as string}</em>
+        <em>{error}</em>
       </p>
     );
   });
 
   return (
     <>
-      {field.state.meta.isTouched && !field.state.meta.isValid && field.state.meta.errors.length > 0 && errors}
+      {field.state.meta.isTouched && errors.length > 0 && errors}
       {field.state.meta.isValidating ? "Validating..." : null}
     </>
   );
@@ -35,31 +35,17 @@ export enum UrlsTypes {
   IMAGE = "image",
 }
 
-const formSchema = z.object({
-  title: z.string().min(10, { error: "Title must be at least 10 characters" }).max(100, { error: "Title must be at most 100 characters" }),
-  introduction: z.string().min(10, { error: "Introduction must be at least 10 characters" }).max(500, { error: "Introduction must be at most 500 characters" }),
-  main: z.string().min(200, "Main content must be at least 200 characters"),
-  main_audio_url: z.url("You must enter a real url"),
-  url_to_main_illustration: z.url("You must enter a real url"),
-  urls: z
-    .array(
-      z.object({
-        type: z.enum(UrlsTypes),
-        url: z.url("You must enter a real url"),
-        credits: z.string().max(100, { error: "Credits must be at most 100 characters" }).optional(),
-      }),
-    )
-    .optional(),
-});
-
-export const FormMarkup = ({ defaultformValues, submitAction }: { defaultformValues: Record<string, any>; submitAction: (value: Record<string, any>) => void }) => {
+export const FormMarkup = ({
+  defaultformValues,
+  formValidation,
+  submitAction,
+}: {
+  defaultformValues: Record<string, any>;
+  formValidation: z.ZodObject<any>;
+  submitAction: (value: Record<string, any>) => void;
+}) => {
   const form = useForm({
     defaultValues: defaultformValues,
-
-    validators: {
-      onChangeAsyncDebounceMs: 500,
-      onChange: formSchema,
-    },
     onSubmit: ({ value }) => {
       submitAction(value);
     },
@@ -80,6 +66,15 @@ export const FormMarkup = ({ defaultformValues, submitAction }: { defaultformVal
 
           <form.Field
             name="title"
+            validators={{
+              onChange: ({ value }) => {
+                const result = (formValidation.shape as any).title.safeParse(value);
+                if (!result.success) {
+                  return result.error.issues.map((issue: any) => issue.message);
+                }
+                return undefined;
+              },
+            }}
             children={(field) => (
               <>
                 <FieldLabel htmlFor={field.name}>Title</FieldLabel>
@@ -98,6 +93,15 @@ export const FormMarkup = ({ defaultformValues, submitAction }: { defaultformVal
 
           <form.Field
             name="introduction"
+            validators={{
+              onChange: ({ value }) => {
+                const result = (formValidation.shape as any).introduction.safeParse(value);
+                if (!result.success) {
+                  return result.error.issues.map((issue: any) => issue.message);
+                }
+                return undefined;
+              },
+            }}
             children={(field) => (
               <>
                 <FieldLabel htmlFor={field.name}>Introduction</FieldLabel>
@@ -117,6 +121,15 @@ export const FormMarkup = ({ defaultformValues, submitAction }: { defaultformVal
 
           <form.Field
             name="main"
+            validators={{
+              onChange: ({ value }) => {
+                const result = (formValidation.shape as any).main.safeParse(value);
+                if (!result.success) {
+                  return result.error.issues.map((issue: any) => issue.message);
+                }
+                return undefined;
+              },
+            }}
             children={(field) => (
               <>
                 <FieldLabel htmlFor={field.name}>corps de l'article</FieldLabel>
@@ -136,6 +149,15 @@ export const FormMarkup = ({ defaultformValues, submitAction }: { defaultformVal
 
           <form.Field
             name="main_audio_url"
+            validators={{
+              onChange: ({ value }) => {
+                const result = (formValidation.shape as any).main_audio_url.safeParse(value);
+                if (!result.success) {
+                  return result.error.issues.map((issue: any) => issue.message);
+                }
+                return undefined;
+              },
+            }}
             children={(field) => (
               <>
                 <FieldLabel htmlFor={field.name}>Main Audio URL</FieldLabel>
@@ -155,6 +177,15 @@ export const FormMarkup = ({ defaultformValues, submitAction }: { defaultformVal
 
           <form.Field
             name="url_to_main_illustration"
+            validators={{
+              onChange: ({ value }) => {
+                const result = (formValidation.shape as any).url_to_main_illustration.safeParse(value);
+                if (!result.success) {
+                  return result.error.issues.map((issue: any) => issue.message);
+                }
+                return undefined;
+              },
+            }}
             children={(field) => (
               <>
                 <FieldLabel htmlFor={field.name}>URL to Main Illustration</FieldLabel>
