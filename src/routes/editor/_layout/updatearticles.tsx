@@ -9,7 +9,7 @@ import React from "react";
 import { SlugsSearchComponent } from "@/components/searchComponents/globalsearch";
 import { PaginationSimple } from "@/components/searchComponents/paginationBar";
 
-import items from "@/__tests__/json/slugs.json";
+// import items from "@/__tests__/json/slugs.json";
 
 // const updateArticleServerFn = createServerFn({ method: "POST" })
 //   .inputValidator((data: any) => data)
@@ -36,7 +36,7 @@ function RouteComponent() {
     <section className="w-3/4 mx-auto">
       <SlugsSearchComponent setArticlesList={setArticlesList} />
       {articlesList.length > 0 ? (
-        <PaginationSimple itemsList={items} selectedID={setSelectedArticleId} defaultPage={1} defaultLimit={5} />
+        <PaginationSimple itemsList={articlesList} selectedID={setSelectedArticleId} defaultPage={1} defaultLimit={10} />
       ) : (
         <p>Aucun résultat trouvé. Essayez un autre terme de recherche.</p>
       )}

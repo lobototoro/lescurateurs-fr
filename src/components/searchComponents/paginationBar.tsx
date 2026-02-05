@@ -38,10 +38,10 @@ export const PaginationSimple = ({
             <li
               key={item.id}
               className="cursor-pointer"
-              onKeyDown={() => setSelectedArticle(item.article_id)}
+              onKeyDown={() => setSelectedArticle(item.articleId)}
               onClick={(e) => {
                 preventClickActions(e);
-                setSelectedArticle(item.article_id);
+                setSelectedArticle(item.articleId);
               }}
             >
               {item.slug}
