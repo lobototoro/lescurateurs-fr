@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // TODO: extend this to other elements if needed (form events, etc)
-export const preventClickActions = (e: React.MouseEvent<HTMLButtonElement>) => {
+export const preventClickActions = (e: React.MouseEvent<any>) => {
   e.preventDefault();
   e.stopPropagation();
 };
