@@ -35,7 +35,15 @@ export const PaginationSimple = ({
       <div role="listbox" aria-label="pagination content" className="w-full ml-25 ">
         <ol className="list-decimal list-inside">
           {paginatedItems.map((item) => (
-            <li key={item.id} className="cursor-pointer" onKeyDown={() => setSelectedArticle(item.article_id)}>
+            <li
+              key={item.id}
+              className="cursor-pointer"
+              onKeyDown={() => setSelectedArticle(item.article_id)}
+              onClick={(e) => {
+                preventClickActions(e);
+                setSelectedArticle(item.article_id);
+              }}
+            >
               {item.slug}
             </li>
           ))}
@@ -51,7 +59,7 @@ export const PaginationSimple = ({
                   <PaginationLink
                     href="#"
                     isActive={page === activePage}
-                    onClick={(e: React.MouseEvent) => {
+                    onClick={(e) => {
                       preventClickActions(e);
                       handleChangePage(page);
                     }}
