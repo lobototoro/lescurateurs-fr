@@ -2,7 +2,7 @@ import { FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { z } from "zod";
+import type { z } from "zod";
 import { useForm } from "@tanstack/react-form";
 import type { AnyFieldApi } from "@tanstack/react-form";
 import RTE from "@/components/editor-components/rte";

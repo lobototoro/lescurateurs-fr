@@ -39,28 +39,29 @@ export const formDefaultValues: FormValues = {
   urls: [],
 };
 
+export const formSchema = z.object({
+  title: z.string().min(10, { error: "Title must be at least 10 characters" }).max(100, { error: "Title must be at most 100 characters" }),
+  introduction: z.string().min(10, { error: "Introduction must be at least 10 characters" }).max(500, { error: "Introduction must be at most 500 characters" }),
+  main: z.string().min(200, "Main content must be at least 200 characters"),
+  main_audio_url: z.url("You must enter a real url"),
+  url_to_main_illustration: z.url("You must enter a real url"),
+  urls: z
+    .array(
+      z.object({
+        type: z.enum([UrlsTypes.WEBSITE, UrlsTypes.VIDEOS, UrlsTypes.AUDIO, UrlsTypes.SOCIAL, UrlsTypes.IMAGE]),
+        url: z.url("You must enter a real url"),
+        credits: z.string().max(100, { error: "Credits must be at most 100 characters" }).optional(),
+      }),
+    )
+    .optional(),
+});
+
 function RouteComponent() {
   const { data: session } = authClient.useSession();
   const userSessionInfos = {
     email: session?.user.email ?? "",
     name: session?.user.name ?? "",
   };
-  const formSchema = z.object({
-    title: z.string().min(10, { error: "Title must be at least 10 characters" }).max(100, { error: "Title must be at most 100 characters" }),
-    introduction: z.string().min(10, { error: "Introduction must be at least 10 characters" }).max(500, { error: "Introduction must be at most 500 characters" }),
-    main: z.string().min(200, "Main content must be at least 200 characters"),
-    main_audio_url: z.url("You must enter a real url"),
-    url_to_main_illustration: z.url("You must enter a real url"),
-    urls: z
-      .array(
-        z.object({
-          type: z.enum([UrlsTypes.WEBSITE, UrlsTypes.VIDEOS, UrlsTypes.AUDIO, UrlsTypes.SOCIAL, UrlsTypes.IMAGE]),
-          url: z.url("You must enter a real url"),
-          credits: z.string().max(100, { error: "Credits must be at most 100 characters" }).optional(),
-        }),
-      )
-      .optional(),
-  });
 
   return (
     <section className="w-3/4 mx-auto">
