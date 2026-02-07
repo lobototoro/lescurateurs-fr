@@ -1,6 +1,7 @@
 // import { updateArticle } from "@/lib/articles/articles-functions";
 import { createFileRoute } from "@tanstack/react-router";
 // import { createServerFn } from "@tanstack/react-start";
+import { AnimatePresence, motion } from "motion/react";
 
 // import type { FormValues } from "@/routes/editor/_layout/createarticles";
 
@@ -8,6 +9,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import React from "react";
 import { SlugsSearchComponent } from "@/components/searchComponents/globalsearch";
 import { PaginationSimple } from "@/components/searchComponents/paginationBar";
+import { Button } from "@/components/ui/button";
+import { preventClickActions } from "@/lib/utils/utils";
 
 // import items from "@/__tests__/json/slugs.json";
 
@@ -22,6 +25,11 @@ import { PaginationSimple } from "@/components/searchComponents/paginationBar";
 //     return await updateArticle(id, data);
 //   });
 
+const box: React.CSSProperties = {
+  width: "100%",
+  height: "100%",
+};
+
 export const Route = createFileRoute("/editor/_layout/updatearticles")({
   component: RouteComponent,
 });
@@ -29,17 +37,35 @@ export const Route = createFileRoute("/editor/_layout/updatearticles")({
 function RouteComponent() {
   const [articlesList, setArticlesList] = React.useState<any[]>([]);
   const [selectedArticleId, setSelectedArticleId] = React.useState<string | null>(null);
+  const [isVisible, setIsVisible] = React.useState<boolean>(true);
 
   console.info("selected article id ", selectedArticleId);
 
   return (
     <section className="w-3/4 mx-auto">
-      <SlugsSearchComponent setArticlesList={setArticlesList} />
-      {articlesList.length > 0 ? (
-        <PaginationSimple itemsList={articlesList} selectedID={setSelectedArticleId} defaultPage={1} defaultLimit={10} />
-      ) : (
-        <p>Aucun résultat trouvé. Essayez un autre terme de recherche.</p>
-      )}
+      <AnimatePresence initial={false}>
+        {isVisible ? (
+          <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={box} key="box">
+            <SlugsSearchComponent setArticlesList={setArticlesList} />
+            {articlesList.length > 0 ? (
+              <PaginationSimple itemsList={articlesList} selectedID={setSelectedArticleId} defaultPage={1} defaultLimit={10} triggerAnimation={setIsVisible} />
+            ) : (
+              <p>Aucun résultat trouvé. Essayez un autre terme de recherche.</p>
+            )}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+      <Button
+        variant={isVisible ? "outline" : "default"}
+        className="mt-4"
+        disabled={isVisible}
+        onClick={(e) => {
+          preventClickActions(e);
+          setIsVisible((prev) => !prev);
+        }}
+      >
+        Revenir à la recherche
+      </Button>
     </section>
   );
 }

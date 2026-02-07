@@ -8,15 +8,18 @@ export const PaginationSimple = ({
   selectedID,
   defaultPage = 1,
   defaultLimit = 10,
+  triggerAnimation,
 }: {
   itemsList: any[];
   selectedID: React.Dispatch<React.SetStateAction<string | null>>;
   defaultPage: number;
   defaultLimit: number;
+  triggerAnimation: React.Dispatch<React.SetStateAction<boolean>>;
 }): React.ReactElement => {
   console.info(itemsList);
   const [activePage, setActivePage] = useState<number>(Number(defaultPage));
   const [selectedArticle, setSelectedArticle] = useState<string | null>(null);
+  const [triggerHide, setTriggerHide] = useState<boolean>(false);
   const totalPages = Math.ceil(itemsList.length / Number(defaultLimit));
   const offset = Number(defaultLimit) * (activePage - 1);
   const paginatedItems = itemsList.slice(offset, Number(defaultLimit) * activePage);
@@ -25,10 +28,13 @@ export const PaginationSimple = ({
   };
 
   useEffect(() => {
-    if (selectedArticle) {
+    if (selectedArticle && selectedArticle !== null) {
       selectedID(selectedArticle);
     }
-  }, [selectedArticle, selectedID]);
+    if (triggerHide) {
+      triggerAnimation(false);
+    }
+  }, [selectedArticle, selectedID, triggerAnimation, triggerHide]);
 
   return (
     <section className="w-full my-6">
@@ -42,6 +48,7 @@ export const PaginationSimple = ({
               onClick={(e) => {
                 preventClickActions(e);
                 setSelectedArticle(item.articleId);
+                setTriggerHide(true);
               }}
             >
               {item.slug}
