@@ -27,7 +27,7 @@ const fetchArticleServerFn = createServerFn({ method: "GET" })
 
 const updateArticleServerFn = createServerFn({ method: "POST" })
   .inputValidator((data: FormData) => data)
-  .handler(async (data: any) => {
+  .handler(async ({ data }) => {
     return await updateArticle(data);
   });
 
@@ -117,7 +117,7 @@ function RouteComponent() {
         <FormMarkup
           defaultformValues={defaultformValues}
           formValidation={formUpdateSchema}
-          submitAction={async (values: any) => {
+          submitAction={async (values) => {
             //check for changes in values compared to articleData, if no changes, show a toast and return
             const hasChanges = Object.keys(values).some((key) => {
               if (key === "urls") {

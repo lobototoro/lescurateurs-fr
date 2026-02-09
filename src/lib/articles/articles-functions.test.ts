@@ -284,7 +284,7 @@ describe("articles-functions", () => {
       data.set("introduction", "Updated introduction");
       data.set("urls", JSON.stringify([]));
 
-      const result = await articlesFunctions.updateArticle({ data } as any);
+      const result = await articlesFunctions.updateArticle(data);
 
       expect(result).toEqual({
         isSuccess: false,
@@ -299,7 +299,7 @@ describe("articles-functions", () => {
       data.set("introduction", "Updated introduction");
       data.set("urls", "invalid json");
 
-      const result = await articlesFunctions.updateArticle({ data } as any);
+      const result = await articlesFunctions.updateArticle(data);
 
       expect(result).toEqual({
         isSuccess: false,
@@ -325,7 +325,7 @@ describe("articles-functions", () => {
         returning: vi.fn().mockResolvedValue([{ id: "123" }]),
       });
 
-      const result = await articlesFunctions.updateArticle({ data } as any);
+      const result = await articlesFunctions.updateArticle(data);
 
       expect(result).toEqual({
         isSuccess: true,
@@ -352,7 +352,7 @@ describe("articles-functions", () => {
         returning: vi.fn().mockResolvedValue([{ id: "123" }]),
       });
 
-      const result = await articlesFunctions.updateArticle({ data } as any);
+      const result = await articlesFunctions.updateArticle(data);
 
       expect(result).toEqual({
         isSuccess: true,
@@ -387,7 +387,7 @@ describe("articles-functions", () => {
 
       (fixedDb.update as Mock).mockImplementation(mockUpdate);
 
-      const result = await articlesFunctions.updateArticle({ data } as any);
+      const result = await articlesFunctions.updateArticle(data);
 
       expect(result.isSuccess).toBe(true);
       expect(result.status).toBe(200);
@@ -412,7 +412,7 @@ describe("articles-functions", () => {
         returning: vi.fn().mockRejectedValue(new Error("Database error")),
       });
 
-      const result = await articlesFunctions.updateArticle({ data } as any);
+      const result = await articlesFunctions.updateArticle(data);
 
       expect(result).toEqual({
         isSuccess: false,
@@ -434,7 +434,7 @@ describe("articles-functions", () => {
         returning: vi.fn().mockRejectedValue(new Error("Slug constraint violation")),
       });
 
-      const result = await articlesFunctions.updateArticle({ data } as any);
+      const result = await articlesFunctions.updateArticle(data);
 
       expect(result.isSuccess).toBe(false);
       expect(result.status).toBe(400);

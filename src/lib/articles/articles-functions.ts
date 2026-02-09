@@ -230,6 +230,7 @@ export const createSlug = async (slugObject: typeof slugs.$inferInsert): Promise
  * ```
  */
 export const createArticle = async (articleObject: FormData): Promise<CustomResponseT> => {
+  console.log("articleObject in createArticle function ", articleObject);
   const article = {
     title: articleObject.get("title") as string,
     introduction: articleObject.get("introduction") as string,
@@ -328,14 +329,13 @@ export const createArticle = async (articleObject: FormData): Promise<CustomResp
  * }
  * ```
  */
-export const updateArticle = async (articleObject: any): Promise<CustomResponseT> => {
+export const updateArticle = async (articleObject: FormData): Promise<CustomResponseT> => {
   let successMessage = "";
   let errorMessage = "";
-  const { data } = articleObject;
 
   try {
     // Validate required fields
-    if (!data.get("id")) {
+    if (!articleObject.get("id")) {
       return {
         isSuccess: false,
         status: 400,
@@ -346,7 +346,7 @@ export const updateArticle = async (articleObject: any): Promise<CustomResponseT
     // Parse URLs with error handling
     let urls: Json;
     try {
-      urls = JSON.parse(data.get("urls") as string) as Json;
+      urls = JSON.parse(articleObject.get("urls") as string) as Json;
     } catch (parseError) {
       return {
         isSuccess: false,
@@ -356,14 +356,14 @@ export const updateArticle = async (articleObject: any): Promise<CustomResponseT
     }
 
     // Update slug if provided
-    if (data.get("slug")) {
+    if (articleObject.get("slug")) {
       try {
         const updateSlugResponse = await fixedDb
           .update(slugs)
           .set({
-            slug: data.get("slug") as string,
+            slug: articleObject.get("slug") as string,
           })
-          .where(eq(slugs.articleId, data.get("id") as string))
+          .where(eq(slugs.articleId, articleObject.get("id") as string))
           .returning();
 
         if (updateSlugResponse.length === 0) {
@@ -378,14 +378,14 @@ export const updateArticle = async (articleObject: any): Promise<CustomResponseT
 
     // Update article
     const updateCandidate = {
-      title: data.get("title") as string,
-      introduction: data.get("introduction") as string,
-      main: data.get("main") as string,
+      title: articleObject.get("title") as string,
+      introduction: articleObject.get("introduction") as string,
+      main: articleObject.get("main") as string,
       urls,
-      main_audio_url: data.get("main_audio_url") as string,
-      url_to_main_illustration: data.get("url_to_main_illustration") as string,
-      updated_at: data.get("updated_at") as string,
-      updated_by: data.get("updated_by") as string,
+      main_audio_url: articleObject.get("main_audio_url") as string,
+      url_to_main_illustration: articleObject.get("url_to_main_illustration") as string,
+      updated_at: articleObject.get("updated_at") as string,
+      updated_by: articleObject.get("updated_by") as string,
     };
 
     try {
@@ -393,9 +393,9 @@ export const updateArticle = async (articleObject: any): Promise<CustomResponseT
         .update(articles)
         .set({
           ...updateCandidate,
-          ...(data.get("slug") ? { slug: data.get("slug") as string } : {}),
+          ...(articleObject.get("slug") ? { slug: articleObject.get("slug") as string } : {}),
         })
-        .where(eq(articles.id, data.get("id") as string))
+        .where(eq(articles.id, articleObject.get("id") as string))
         .returning();
 
       if (updateArticleResponse.length === 0) {
