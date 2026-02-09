@@ -2,6 +2,7 @@ import { updateArticle, fetchArticleById } from "@/lib/articles/articles-functio
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { AnimatePresence, motion } from "motion/react";
+import slugify from "slugify";
 
 import type { articles } from "db/schema";
 import React, { useEffect, useCallback } from "react";
@@ -12,6 +13,7 @@ import { preventClickActions } from "@/lib/utils/utils";
 import { toast } from "sonner";
 import { FormMarkup, type UrlsTypes } from "@/components/editor-components/formMarkup";
 import { type FormValues, formSchema as formUpdateSchema } from "@/routes/editor/_layout/createarticles";
+import { authClient } from "lib/auth/auth-client";
 
 const fetchArticleServerFn = createServerFn({ method: "GET" })
   .inputValidator((data: { id: string }) => data)
@@ -23,16 +25,11 @@ const fetchArticleServerFn = createServerFn({ method: "GET" })
     return article as any;
   });
 
-// const updateArticleServerFn = createServerFn({ method: "POST" })
-//   .inputValidator((data: any) => data)
-//   .handler(async (data: any) => {
-//     // Extract id from FormData since it's not being passed as a separate parameter
-//     const id = data.id as string;
-//     if (!id) {
-//       throw new Error("ID is required");
-//     }
-//     return await updateArticle(id, data);
-//   });
+const updateArticleServerFn = createServerFn({ method: "POST" })
+  .inputValidator((data: FormData) => data)
+  .handler(async (data: any) => {
+    return await updateArticle(data);
+  });
 
 const box: React.CSSProperties = {
   width: "100%",
@@ -44,6 +41,10 @@ export const Route = createFileRoute("/editor/_layout/updatearticles")({
 });
 
 function RouteComponent() {
+  const { data: session } = authClient.useSession();
+  const userSessionInfos = {
+    name: session?.user.name ?? "",
+  };
   const [articlesList, setArticlesList] = React.useState<any[]>([]);
   const [selectedArticleId, setSelectedArticleId] = React.useState<string | null>(null);
   const [isVisible, setIsVisible] = React.useState<boolean>(true);
@@ -79,6 +80,7 @@ function RouteComponent() {
   useEffect(() => {
     if (selectedArticleId) {
       getArticleData(selectedArticleId);
+      setArticlesList([]);
       setIsVisible(false);
     }
   }, [selectedArticleId, getArticleData]);
@@ -104,6 +106,8 @@ function RouteComponent() {
         onClick={(e) => {
           preventClickActions(e);
           setArticleData(null);
+          setSelectedArticleId(null);
+          setArticlesList([]);
           setIsVisible((prev) => !prev);
         }}
       >
@@ -114,7 +118,45 @@ function RouteComponent() {
           defaultformValues={defaultformValues}
           formValidation={formUpdateSchema}
           submitAction={async (values: any) => {
-            console.info(values);
+            //check for changes in values compared to articleData, if no changes, show a toast and return
+            const hasChanges = Object.keys(values).some((key) => {
+              if (key === "urls") {
+                return JSON.stringify(values[key]) !== JSON.stringify(articleData[key as keyof typeof articleData]);
+              }
+              return values[key] !== articleData[key as keyof typeof articleData];
+            });
+
+            if (!hasChanges) {
+              toast.error("Aucun changement détecté. Veuillez modifier au moins un champ avant de soumettre.");
+              return;
+            }
+
+            const formData = new FormData();
+            formData.append("id", articleData.id);
+            formData.append("title", values.title);
+            formData.append("introduction", values.introduction);
+            formData.append("main", values.main);
+            formData.append("main_audio_url", values.main_audio_url);
+            formData.append("url_to_main_illustration", values.url_to_main_illustration);
+            formData.append("urls", JSON.stringify(values.urls));
+            formData.append("updated_by", userSessionInfos.name);
+            formData.append("updated_at", new Date().toISOString());
+            // we only add slug to the update stack if there's a change in title
+            if (articleData.title !== values.title) {
+              formData.append("slug", slugify(values.title, { lower: true, remove: /[*+~.()'"!:@]/g }));
+            }
+
+            try {
+              const updatearticleResponse = await updateArticleServerFn({ data: formData });
+              if (updatearticleResponse.isSuccess) {
+                setIsVisible(true);
+                setArticleData(null);
+              }
+              toast.success("Article mis à jour avec succès !");
+            } catch (error) {
+              console.error("Error updating article:", error);
+              toast.error("Erreur lors de la mise à jour de l'article. Veuillez réessayer.");
+            }
           }}
         />
       )}

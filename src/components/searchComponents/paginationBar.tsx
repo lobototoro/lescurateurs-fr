@@ -16,7 +16,6 @@ export const PaginationSimple = ({
   defaultLimit: number;
   triggerAnimation: React.Dispatch<React.SetStateAction<boolean>>;
 }): React.ReactElement => {
-  console.info(itemsList);
   const [activePage, setActivePage] = useState<number>(Number(defaultPage));
   const [selectedArticle, setSelectedArticle] = useState<string | null>(null);
   const [triggerHide, setTriggerHide] = useState<boolean>(false);

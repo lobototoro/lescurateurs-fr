@@ -301,39 +301,119 @@ export const createArticle = async (articleObject: FormData): Promise<CustomResp
  * Updates an existing article in the database.
  *
  * This function updates an article record in the database with the provided data.
+ * It also updates the corresponding slug entry if a new slug is provided.
  * Note: This function should only be used server-side.
  *
- * @param id - The ID of the article to update.
- * @param articleObject - The article data to update, excluding certain readonly fields.
+ * @param articleObject - An object containing a `data` property with FormData-like article data to update.
+ *                        Required fields: id (string)
+ *                        Optional fields: title, introduction, main, urls (JSON string), main_audio_url,
+ *                                          url_to_main_illustration, updated_at, updated_by, slug
  * @returns {Promise<CustomResponseT>} A promise that resolves to a response object indicating success or failure.
+ *                                      The message includes detailed information about which operations succeeded/failed.
+ * @throws {Error} If required fields are missing or if JSON parsing fails for the urls field.
  *
  * @example
  * ```typescript
- * const response = await updateArticle(123, {
- *   content: "Updated content...",
- *   excerpt: "Updated excerpt...",
- *   // ... other updatable article properties
- * });
+ * const articleData = {
+ *   data: new FormData()
+ * };
+ * articleData.data.append("id", "article-id");
+ * articleData.data.append("title", "Updated Article Title");
+ * articleData.data.append("slug", "updated-article-slug");
+ * articleData.data.append("urls", JSON.stringify([{url: "https://example.com"}]));
+ * // ... append other article properties to update
+ * const response = await updateArticle(articleData);
  * if (response.isSuccess) {
- *   console.log("Article updated successfully");
+ *   console.log(response.message); // "Slug updated successfully. Article updated successfully."
  * }
  * ```
  */
-export const updateArticle = async (id: string, articleObject: Omit<typeof articles.$inferInsert, "id" | "createdAt" | "title" | "slug">): Promise<CustomResponseT> => {
-  try {
-    const updateArticleResponse = fixedDb
-      .update(articles)
-      .set({
-        ...articleObject,
-      })
-      .where(eq(articles.id, id));
+export const updateArticle = async (articleObject: any): Promise<CustomResponseT> => {
+  let successMessage = "";
+  let errorMessage = "";
+  const { data } = articleObject;
 
-    console.log("article update response ", updateArticleResponse);
+  try {
+    // Validate required fields
+    if (!data.get("id")) {
+      return {
+        isSuccess: false,
+        status: 400,
+        message: "Article ID is required",
+      };
+    }
+
+    // Parse URLs with error handling
+    let urls: Json;
+    try {
+      urls = JSON.parse(data.get("urls") as string) as Json;
+    } catch (parseError) {
+      return {
+        isSuccess: false,
+        status: 400,
+        message: `Invalid JSON in URLs field: ${parseError}`,
+      };
+    }
+
+    // Update slug if provided
+    if (data.get("slug")) {
+      try {
+        const updateSlugResponse = await fixedDb
+          .update(slugs)
+          .set({
+            slug: data.get("slug") as string,
+          })
+          .where(eq(slugs.articleId, data.get("id") as string))
+          .returning();
+
+        if (updateSlugResponse.length === 0) {
+          errorMessage += "Slug update failed - no rows affected. ";
+        } else {
+          successMessage += "Slug updated successfully. ";
+        }
+      } catch (slugError) {
+        errorMessage += `Slug update failed: ${slugError}. `;
+      }
+    }
+
+    // Update article
+    const updateCandidate = {
+      title: data.get("title") as string,
+      introduction: data.get("introduction") as string,
+      main: data.get("main") as string,
+      urls,
+      main_audio_url: data.get("main_audio_url") as string,
+      url_to_main_illustration: data.get("url_to_main_illustration") as string,
+      updated_at: data.get("updated_at") as string,
+      updated_by: data.get("updated_by") as string,
+    };
+
+    try {
+      const updateArticleResponse = await fixedDb
+        .update(articles)
+        .set({
+          ...updateCandidate,
+          ...(data.get("slug") ? { slug: data.get("slug") as string } : {}),
+        })
+        .where(eq(articles.id, data.get("id") as string))
+        .returning();
+
+      if (updateArticleResponse.length === 0) {
+        errorMessage += "Article update failed - no rows affected. ";
+      } else {
+        successMessage += "Article updated successfully. ";
+      }
+    } catch (articleError) {
+      errorMessage += `Article update failed: ${articleError}. `;
+    }
+
+    // Determine overall success
+    const isSuccess = !errorMessage || (errorMessage.includes("Slug update failed") && successMessage.includes("Article updated"));
 
     return {
-      isSuccess: true,
-      status: 200,
-      message: "Article updated successfully",
+      isSuccess,
+      status: isSuccess ? 200 : 400,
+      message: (errorMessage + successMessage).trim() || "Article updated successfully",
     };
   } catch (error) {
     const errMessage = `Could not update article: ${error}`;

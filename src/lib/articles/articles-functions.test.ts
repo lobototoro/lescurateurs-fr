@@ -279,65 +279,166 @@ describe("articles-functions", () => {
   });
 
   describe("updateArticle", () => {
-    it("should update an article and return success response", async () => {
-      const articleUpdateData = {
-        introduction: "Updated introduction",
-        main: "Updated main content",
-        main_audio_url: "http://example.com/audio.mp3",
-        url_to_main_illustration: "http://example.com/image.jpg",
-        updated_at: new Date().toISOString(),
-        updated_by: "admin",
-        published_at: new Date().toISOString(),
-        urls: [],
-        validated: true,
-        shipped: false,
-        author: "Updated Author",
-        author_email: "updated@example.com",
-        created_at: new Date().toISOString(),
-      };
+    it("should return error when id is missing", async () => {
+      const data = new FormData();
+      data.set("introduction", "Updated introduction");
+      data.set("urls", JSON.stringify([]));
 
-      (fixedDb.update as Mock).mockReturnValue({
-        set: vi.fn().mockReturnThis(),
-        where: vi.fn().mockResolvedValue([{ id: "123" }]),
-      });
-
-      const result = await articlesFunctions.updateArticle("123", articleUpdateData);
-
-      expect(result).toEqual({
-        isSuccess: true,
-        status: 200,
-        message: "Article updated successfully",
-      });
-    });
-
-    it("should return error response when article update fails", async () => {
-      const articleUpdateData = {
-        introduction: "Updated introduction",
-        main: "Updated main content",
-        main_audio_url: "http://example.com/audio.mp3",
-        url_to_main_illustration: "http://example.com/image.jpg",
-        updated_at: new Date().toISOString(),
-        updated_by: "admin",
-        published_at: new Date().toISOString(),
-        urls: [],
-        validated: true,
-        shipped: false,
-        author: "Updated Author",
-        author_email: "updated@example.com",
-        created_at: new Date().toISOString(),
-      };
-
-      (fixedDb.update as Mock).mockImplementation(() => {
-        throw new Error("Database error");
-      });
-
-      const result = await articlesFunctions.updateArticle("123", articleUpdateData);
+      const result = await articlesFunctions.updateArticle({ data } as any);
 
       expect(result).toEqual({
         isSuccess: false,
         status: 400,
-        message: expect.stringContaining("Could not update article:"),
+        message: "Article ID is required",
       });
+    });
+
+    it("should return error when urls JSON is invalid", async () => {
+      const data = new FormData();
+      data.set("id", "123");
+      data.set("introduction", "Updated introduction");
+      data.set("urls", "invalid json");
+
+      const result = await articlesFunctions.updateArticle({ data } as any);
+
+      expect(result).toEqual({
+        isSuccess: false,
+        status: 400,
+        message: expect.stringContaining("Invalid JSON in URLs field"),
+      });
+    });
+
+    it("should update article successfully without slug change", async () => {
+      const data = new FormData();
+      data.set("id", "123");
+      data.set("introduction", "Updated introduction");
+      data.set("main", "Updated main content");
+      data.set("main_audio_url", "http://example.com/audio.mp3");
+      data.set("url_to_main_illustration", "http://example.com/image.jpg");
+      data.set("updated_at", new Date().toISOString());
+      data.set("updated_by", "admin");
+      data.set("urls", JSON.stringify([]));
+
+      (fixedDb.update as Mock).mockReturnValue({
+        set: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        returning: vi.fn().mockResolvedValue([{ id: "123" }]),
+      });
+
+      const result = await articlesFunctions.updateArticle({ data } as any);
+
+      expect(result).toEqual({
+        isSuccess: true,
+        status: 200,
+        message: "Article updated successfully.",
+      });
+    });
+
+    it("should update both slug and article successfully", async () => {
+      const data = new FormData();
+      data.set("id", "123");
+      data.set("slug", "new-slug");
+      data.set("introduction", "Updated introduction");
+      data.set("main", "Updated main content");
+      data.set("main_audio_url", "http://example.com/audio.mp3");
+      data.set("url_to_main_illustration", "http://example.com/image.jpg");
+      data.set("updated_at", new Date().toISOString());
+      data.set("updated_by", "admin");
+      data.set("urls", JSON.stringify([]));
+
+      (fixedDb.update as Mock).mockReturnValue({
+        set: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        returning: vi.fn().mockResolvedValue([{ id: "123" }]),
+      });
+
+      const result = await articlesFunctions.updateArticle({ data } as any);
+
+      expect(result).toEqual({
+        isSuccess: true,
+        status: 200,
+        message: "Slug updated successfully. Article updated successfully.",
+      });
+    });
+
+    it("should return partial success when slug update fails but article update succeeds", async () => {
+      const data = new FormData();
+      data.set("id", "123");
+      data.set("slug", "new-slug");
+      data.set("introduction", "Updated introduction");
+      data.set("main", "Updated main content");
+      data.set("main_audio_url", "http://example.com/audio.mp3");
+      data.set("url_to_main_illustration", "http://example.com/image.jpg");
+      data.set("updated_at", new Date().toISOString());
+      data.set("updated_by", "admin");
+      data.set("urls", JSON.stringify([]));
+
+      let callIndex = 0;
+      const mockUpdate = vi.fn();
+
+      mockUpdate.mockImplementation(() => {
+        callIndex++;
+        return {
+          set: vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          returning: vi.fn().mockResolvedValue(callIndex === 1 ? [] : [{ id: "123" }]),
+        };
+      });
+
+      (fixedDb.update as Mock).mockImplementation(mockUpdate);
+
+      const result = await articlesFunctions.updateArticle({ data } as any);
+
+      expect(result.isSuccess).toBe(true);
+      expect(result.status).toBe(200);
+      expect(result.message).toContain("Slug update failed - no rows affected");
+      expect(result.message).toContain("Article updated successfully");
+    });
+
+    it("should return error when article update fails", async () => {
+      const data = new FormData();
+      data.set("id", "123");
+      data.set("introduction", "Updated introduction");
+      data.set("main", "Updated main content");
+      data.set("main_audio_url", "http://example.com/audio.mp3");
+      data.set("url_to_main_illustration", "http://example.com/image.jpg");
+      data.set("updated_at", new Date().toISOString());
+      data.set("updated_by", "admin");
+      data.set("urls", JSON.stringify([]));
+
+      (fixedDb.update as Mock).mockReturnValue({
+        set: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        returning: vi.fn().mockRejectedValue(new Error("Database error")),
+      });
+
+      const result = await articlesFunctions.updateArticle({ data } as any);
+
+      expect(result).toEqual({
+        isSuccess: false,
+        status: 400,
+        message: expect.stringContaining("Article update failed:"),
+      });
+    });
+
+    it("should return error when slug update throws an exception", async () => {
+      const data = new FormData();
+      data.set("id", "123");
+      data.set("slug", "new-slug");
+      data.set("introduction", "Updated introduction");
+      data.set("urls", JSON.stringify([]));
+
+      (fixedDb.update as Mock).mockReturnValue({
+        set: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        returning: vi.fn().mockRejectedValue(new Error("Slug constraint violation")),
+      });
+
+      const result = await articlesFunctions.updateArticle({ data } as any);
+
+      expect(result.isSuccess).toBe(false);
+      expect(result.status).toBe(400);
+      expect(result.message).toContain("Slug update failed");
     });
   });
 

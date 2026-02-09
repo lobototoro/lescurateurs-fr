@@ -69,7 +69,6 @@ function RouteComponent() {
         defaultformValues={formDefaultValues}
         formValidation={formSchema}
         submitAction={async (values) => {
-          // console.log(values);
           const formData = new FormData();
           formData.append("title", values.title);
           formData.append("introduction", values.introduction);

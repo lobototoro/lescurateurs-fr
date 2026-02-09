@@ -31,7 +31,6 @@ export const SlugsSearchComponent = ({ setArticlesList }: { setArticlesList: (va
       // Here you would typically call your search function and update the state with the results
       try {
         const articlesList = await slugsSearchServerfn({ data: { searchTerm: value.searchTerm } });
-        console.info("articles list ", articlesList);
         if (Array.isArray(articlesList) && articlesList.length > 0) {
           setArticlesList(articlesList);
         } else {
