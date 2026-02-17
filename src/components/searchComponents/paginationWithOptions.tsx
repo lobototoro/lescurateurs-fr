@@ -7,7 +7,7 @@ import { FieldSeparator } from "@/components/ui/field";
 
 import { preventClickActions } from "@/lib/utils/utils";
 import { FillPopover } from "@/components/searchComponents/fillPopover";
-import { articles } from "db/schema";
+import type { articles } from "db/schema";
 
 export const PaginationWithOptions = ({
   itemsList,

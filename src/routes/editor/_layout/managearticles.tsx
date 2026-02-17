@@ -7,7 +7,7 @@ import { SlugsSearchComponent } from "@/components/searchComponents/globalsearch
 import { PaginationWithOptions } from "@/components/searchComponents/paginationWithOptions";
 import { searchArticleById } from "@/lib/search/search-functions";
 import { authClient } from "lib/auth/auth-client";
-import { articles } from "db/schema";
+import type { articles } from "db/schema";
 
 export const searchByIdServer = createServerFn({ method: "GET" })
   .inputValidator((data: { id: string }) => data)
