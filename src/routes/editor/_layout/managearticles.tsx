@@ -8,6 +8,7 @@ import { PaginationWithOptions } from "@/components/searchComponents/paginationW
 import { searchArticleById } from "@/lib/search/search-functions";
 import { authClient } from "lib/auth/auth-client";
 import type { articles } from "db/schema";
+import { FillPopover } from "@/components/searchComponents/fillPopover";
 
 export const searchByIdServer = createServerFn({ method: "GET" })
   .inputValidator((data: { id: string }) => data)
@@ -68,15 +69,9 @@ function RouteComponent() {
     <section className="w-3/4 mx-auto">
       <SlugsSearchComponent setArticlesList={setArticlesList} />
       {articlesList.length > 0 && (
-        <PaginationWithOptions
-          itemsList={articlesList}
-          selectedID={setSelectedArticleId}
-          defaultPage={1}
-          defaultLimit={5}
-          groupButtonsActions={handleGroupButtonsActions}
-          isPending={isPending}
-          articleData={selectedArticle}
-        />
+        <PaginationWithOptions itemsList={articlesList} selectedID={setSelectedArticleId} defaultPage={1} defaultLimit={5} isPending={isPending}>
+          <FillPopover articleData={selectedArticle} handleGroupButtonsActions={handleGroupButtonsActions} />
+        </PaginationWithOptions>
       )}
     </section>
   );

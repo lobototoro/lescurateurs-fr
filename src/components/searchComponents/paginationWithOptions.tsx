@@ -6,29 +6,24 @@ import { Spinner } from "@/components/ui/spinner";
 import { FieldSeparator } from "@/components/ui/field";
 
 import { preventClickActions } from "@/lib/utils/utils";
-import { FillPopover } from "@/components/searchComponents/fillPopover";
-import type { articles } from "db/schema";
 
 export const PaginationWithOptions = ({
   itemsList,
   selectedID,
   defaultPage = 1,
   defaultLimit = 10,
-  groupButtonsActions,
   isPending,
-  articleData,
+  children,
 }: {
   itemsList: any[];
   selectedID: React.Dispatch<React.SetStateAction<string | null>>;
   defaultPage: number;
   defaultLimit: number;
-  groupButtonsActions: (articleId: string, type: string) => void;
   isPending: boolean;
-  articleData: typeof articles.$inferSelect | null;
+  children: React.ReactNode;
 }): React.ReactElement => {
   const [activePage, setActivePage] = useState<number>(Number(defaultPage));
   const [selectedArticle, setSelectedArticle] = useState<string | null>(null);
-  const [selectedArticleData, setSelectedArticleData] = useState<typeof articles.$inferSelect | null>(null);
   const totalPages = Math.ceil(itemsList.length / Number(defaultLimit));
   const offset = Number(defaultLimit) * (activePage - 1);
   const paginatedItems = itemsList.slice(offset, Number(defaultLimit) * activePage);
@@ -40,10 +35,7 @@ export const PaginationWithOptions = ({
     if (selectedArticle) {
       selectedID(selectedArticle);
     }
-    if (articleData) {
-      setSelectedArticleData(articleData); // seems redundant but is actually necessary to feed the popover with the right data when clicking on another article without changing page
-    }
-  }, [selectedArticle, selectedID, articleData]);
+  }, [selectedArticle, selectedID]);
 
   /*
    * Popover and Pagination are from shadcn UI.
@@ -76,11 +68,7 @@ export const PaginationWithOptions = ({
                     <PopoverTitle>Actions</PopoverTitle>
                     <PopoverDescription className="mb-6">Choisissez une action à effectuer sur l'article sélectionné.</PopoverDescription>
                   </PopoverHeader>
-                  {!articleData && isPending ? (
-                    <Spinner />
-                  ) : (
-                    <FillPopover articleData={selectedArticleData} handleGroupButtonsActions={groupButtonsActions} />
-                  )}
+                  {isPending ? <Spinner /> : children}
                 </PopoverContent>
               </Popover>
             </li>
