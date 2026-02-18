@@ -2,6 +2,7 @@ import React, { useEffect, useTransition } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { ModalManager } from "shadcn-modal-manager";
 
 import { SlugsSearchComponent } from "@/components/searchComponents/globalsearch";
 import { PaginationWithOptions } from "@/components/searchComponents/paginationWithOptions";
@@ -9,6 +10,27 @@ import { searchArticleById } from "@/lib/search/search-functions";
 import { authClient } from "lib/auth/auth-client";
 import type { articles } from "db/schema";
 import { FillPopover } from "@/components/searchComponents/fillPopover";
+import { ModalComponent } from "@/components/modal/modalComponent";
+
+import { deleteArticle, validateArticle, shipArticle } from "@/lib/articles/articles-functions";
+
+export const deleteArticleServer = createServerFn({ method: "POST" })
+  .inputValidator((data: { id: string }) => data)
+  .handler(async ({ data }) => {
+    return await deleteArticle(data.id);
+  });
+
+export const validateArticleServer = createServerFn({ method: "POST" })
+  .inputValidator((data: { id: string; validatedBy: boolean }) => data)
+  .handler(async ({ data }) => {
+    return await validateArticle(data.id, data.validatedBy);
+  });
+
+export const shipArticleServer = createServerFn({ method: "POST" })
+  .inputValidator((data: { id: string; shippedBy: boolean }) => data)
+  .handler(async ({ data }) => {
+    return await shipArticle(data.id, data.shippedBy);
+  });
 
 export const searchByIdServer = createServerFn({ method: "GET" })
   .inputValidator((data: { id: string }) => data)
@@ -35,8 +57,59 @@ function RouteComponent() {
   const [selectedArticleId, setSelectedArticleId] = React.useState<string | null>(null);
   const [selectedArticle, setSelectedArticle] = React.useState<typeof articles.$inferSelect | null>(null);
 
+  const handleChoice = async (choice: Record<string, any>) => {
+    const modalRef = ModalManager.open(ModalComponent, {
+      data: { message: choice.message, articleId: choice.articleId, choice: choice.argument, action: choice.action },
+    });
+    const result = await modalRef.afterClosed();
+
+    return result;
+  };
+
   const handleGroupButtonsActions = async (articleId: string, actionType: string) => {
     console.info(`Action "${actionType}" triggered for article ID: ${articleId}`);
+    // on call, display a prompt to confirm the action, then execute the corresponding function based on the actionType (e.g., "edit", "delete", "publish")
+    switch (actionType) {
+      case "Dé-valider":
+        // call the function to invalidate the article
+        break;
+      case "Valider": {
+        // open modal and call the function to validate the article if the user confirms
+        const handleresult = async (id: string, choice: boolean) => {
+          try {
+            const actionRequest = await validateArticleServer({ data: { id, validatedBy: choice } });
+            console.info("in handleresult func ", actionRequest);
+            if (actionRequest.isSuccess) {
+              toast.success("Opération réussie !");
+            }
+          } catch (error) {
+            toast.error(`Une erreur est survenue : ${error}. Veuillez réessayer.`);
+          }
+        };
+        const choice = {
+          message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
+          articleId,
+          argument: true,
+          action: handleresult,
+        };
+        await handleChoice(choice);
+        break;
+      }
+      case "Mettre offline":
+        // call the function to take the article offline
+        break;
+      case "Déployer":
+        // call the function to deploy the article
+        break;
+      case "Supprimer":
+        // call the function to delete the article
+        break;
+      case "Restaurer":
+        // call the function to restore the article
+        break;
+      default:
+        toast.error(`Unknown action type: ${actionType}`);
+    }
   };
 
   // Fetch article data when selectedArticleId changes

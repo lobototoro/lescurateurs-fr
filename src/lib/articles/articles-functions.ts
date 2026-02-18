@@ -429,24 +429,19 @@ export const updateArticle = async (articleObject: FormData): Promise<CustomResp
 
 /**
  * Deletes an article from the database.
+ * this function adds to "markfordeletion|" prefix to the article's slug instead of deleting the record to keep a trace of it and avoid potential issues with foreign key constraints, but it can be easily modified to perform a hard delete if needed.
  *
- * This function removes an article record from the database by its ID.
- * Note: This function should only be used server-side.
- *
- * @param id - The ID of the article to delete.
- * @returns {Promise<CustomResponseT>} A promise that resolves to a response object indicating success or failure.
- *
- * @example
- * ```typescript
- * const response = await deleteArticle(123);
- * if (response.isSuccess) {
- *   console.log("Article deleted successfully");
- * }
- * ```
  */
 export const deleteArticle = async (id: string): Promise<CustomResponseT> => {
+  const deletedId = `markfordeletion|${id}`;
   try {
-    const deleteArticleResponse = fixedDb.delete(articles).where(eq(articles.id, id));
+    const deleteArticleResponse = fixedDb
+      .update(articles)
+      .set({
+        // TODO: this should also update the corresponding slug's slug property to keep them in sync, but it would require a transaction to ensure atomicity
+        id: deletedId,
+      })
+      .where(eq(articles.id, id));
 
     console.log("article deletion response ", deleteArticleResponse);
 
@@ -486,15 +481,16 @@ export const deleteArticle = async (id: string): Promise<CustomResponseT> => {
  * ```
  */
 export const validateArticle = async (id: string, validation: boolean): Promise<CustomResponseT> => {
+  console.log("server side ", { id, validation });
   try {
-    const validateArticleResponse = fixedDb
-      .update(articles)
-      .set({
-        validated: validation,
-      })
-      .where(eq(articles.id, id));
+    // const validateArticleResponse = fixedDb
+    //   .update(articles) // TODO: this should also update the corresponding slug's validated property to keep them in sync, but it would require a transaction to ensure atomicity
+    //   .set({
+    //     validated: validation,
+    //   })
+    //   .where(eq(articles.id, id));
 
-    console.log("article validation response ", validateArticleResponse);
+    // console.log("article validation response ", validateArticleResponse);
 
     return {
       isSuccess: true,
