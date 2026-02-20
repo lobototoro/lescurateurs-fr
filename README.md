@@ -1,4 +1,17 @@
-# lescurateurs-fr
+---
+
+# LCFR - Tanstack start version
+
+Beginning a tanstack start project.
+In the future it will be a mobile-only webzine, but desktop displayed backoffice.
+
+as of january 22, this project is only a playground for testing tanstack start versions and React new features.
+
+It relies on supabase as a database, using drizzle as ORM, better-auth as authentication library.
+
+Back office is a work in progress, though.
+
+Feel free to look at the same project with nextjs as a framework [https://github.com/lobototoro/lescurateurs](https://github.com/lobototoro/lescurateurs)
 
 # Getting Started
 
