@@ -1,7 +1,9 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index, pgEnum, bigint, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, index, pgEnum, jsonb } from "drizzle-orm/pg-core";
 
 export const rolesEnum = pgEnum("roles", ["admin", "contributor"]);
+
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -77,17 +79,17 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-export const articles = pgTable("articles-development", {
-  id: bigint("id", { mode: "number" }).primaryKey(), // identity BY DEFAULT (bigint)
+export const articles = pgTable("articles_development", {
+  id: text("id").primaryKey(),
   slug: text("slug").notNull(),
   title: text("title").notNull(),
   introduction: text("introduction").notNull(),
   main: text("main").notNull(),
   main_audio_url: text("main_audio_url").notNull(),
   url_to_main_illustration: text("url_to_main_illustration").notNull(),
-  published_at: timestamp("published_at", { mode: "string" }),
-  created_at: timestamp("created_at", { mode: "string" }).notNull(),
-  updated_at: timestamp("updated_at", { mode: "string" }),
+  published_at: timestamp("published_at", { mode: "string", withTimezone: true }),
+  created_at: timestamp("created_at", { mode: "string", withTimezone: true }).notNull(),
+  updated_at: timestamp("updated_at", { mode: "string", withTimezone: true }),
   updated_by: text("updated_by"),
   author: text("author").notNull(),
   author_email: text("author_email").notNull(),
@@ -97,12 +99,12 @@ export const articles = pgTable("articles-development", {
 });
 
 export const slugs = pgTable(
-  "slugs-development",
+  "slugs_development",
   {
-    id: bigint("id", { mode: "number" }).primaryKey(),
+    id: text("id").primaryKey(),
     slug: text("slug").notNull(),
-    createdAt: timestamp("created_at", { mode: "string" }).notNull(),
-    articleId: bigint("article_id", { mode: "number" })
+    createdAt: timestamp("created_at", { mode: "string", withTimezone: true }).notNull(),
+    articleId: text("article_id")
       .notNull()
       .references(() => articles.id, { onDelete: "cascade" }),
     validated: boolean("validated").default(false),

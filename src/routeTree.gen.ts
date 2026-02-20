@@ -9,20 +9,28 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as EditorRouteImport } from './routes/editor'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EditorLayoutRouteImport } from './routes/editor/_layout'
 import { Route as ArticleSlugRouteImport } from './routes/article/$slug'
+import { Route as EditorLayoutIndexRouteImport } from './routes/editor/_layout/index'
+import { Route as EditorLayoutUpdatearticlesRouteImport } from './routes/editor/_layout/updatearticles'
+import { Route as EditorLayoutManageuserRouteImport } from './routes/editor/_layout/manageuser'
+import { Route as EditorLayoutManagearticlesRouteImport } from './routes/editor/_layout/managearticles'
+import { Route as EditorLayoutEnablemaintenanceRouteImport } from './routes/editor/_layout/enablemaintenance'
+import { Route as EditorLayoutCreateuserRouteImport } from './routes/editor/_layout/createuser'
+import { Route as EditorLayoutCreatearticlesRouteImport } from './routes/editor/_layout/createarticles'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EditorRoute = EditorRouteImport.update({
-  id: '/editor',
-  path: '/editor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -30,11 +38,55 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditorLayoutRoute = EditorLayoutRouteImport.update({
+  id: '/editor/_layout',
+  path: '/editor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArticleSlugRoute = ArticleSlugRouteImport.update({
   id: '/article/$slug',
   path: '/article/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditorLayoutIndexRoute = EditorLayoutIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EditorLayoutRoute,
+} as any)
+const EditorLayoutUpdatearticlesRoute =
+  EditorLayoutUpdatearticlesRouteImport.update({
+    id: '/updatearticles',
+    path: '/updatearticles',
+    getParentRoute: () => EditorLayoutRoute,
+  } as any)
+const EditorLayoutManageuserRoute = EditorLayoutManageuserRouteImport.update({
+  id: '/manageuser',
+  path: '/manageuser',
+  getParentRoute: () => EditorLayoutRoute,
+} as any)
+const EditorLayoutManagearticlesRoute =
+  EditorLayoutManagearticlesRouteImport.update({
+    id: '/managearticles',
+    path: '/managearticles',
+    getParentRoute: () => EditorLayoutRoute,
+  } as any)
+const EditorLayoutEnablemaintenanceRoute =
+  EditorLayoutEnablemaintenanceRouteImport.update({
+    id: '/enablemaintenance',
+    path: '/enablemaintenance',
+    getParentRoute: () => EditorLayoutRoute,
+  } as any)
+const EditorLayoutCreateuserRoute = EditorLayoutCreateuserRouteImport.update({
+  id: '/createuser',
+  path: '/createuser',
+  getParentRoute: () => EditorLayoutRoute,
+} as any)
+const EditorLayoutCreatearticlesRoute =
+  EditorLayoutCreatearticlesRouteImport.update({
+    id: '/createarticles',
+    path: '/createarticles',
+    getParentRoute: () => EditorLayoutRoute,
+  } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -43,56 +95,119 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/editor': typeof EditorRoute
   '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/article/$slug': typeof ArticleSlugRoute
+  '/editor': typeof EditorLayoutRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/editor/createarticles': typeof EditorLayoutCreatearticlesRoute
+  '/editor/createuser': typeof EditorLayoutCreateuserRoute
+  '/editor/enablemaintenance': typeof EditorLayoutEnablemaintenanceRoute
+  '/editor/managearticles': typeof EditorLayoutManagearticlesRoute
+  '/editor/manageuser': typeof EditorLayoutManageuserRoute
+  '/editor/updatearticles': typeof EditorLayoutUpdatearticlesRoute
+  '/editor/': typeof EditorLayoutIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/editor': typeof EditorRoute
   '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/editor/createarticles': typeof EditorLayoutCreatearticlesRoute
+  '/editor/createuser': typeof EditorLayoutCreateuserRoute
+  '/editor/enablemaintenance': typeof EditorLayoutEnablemaintenanceRoute
+  '/editor/managearticles': typeof EditorLayoutManagearticlesRoute
+  '/editor/manageuser': typeof EditorLayoutManageuserRoute
+  '/editor/updatearticles': typeof EditorLayoutUpdatearticlesRoute
+  '/editor': typeof EditorLayoutIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/editor': typeof EditorRoute
   '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/article/$slug': typeof ArticleSlugRoute
+  '/editor/_layout': typeof EditorLayoutRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/editor/_layout/createarticles': typeof EditorLayoutCreatearticlesRoute
+  '/editor/_layout/createuser': typeof EditorLayoutCreateuserRoute
+  '/editor/_layout/enablemaintenance': typeof EditorLayoutEnablemaintenanceRoute
+  '/editor/_layout/managearticles': typeof EditorLayoutManagearticlesRoute
+  '/editor/_layout/manageuser': typeof EditorLayoutManageuserRoute
+  '/editor/_layout/updatearticles': typeof EditorLayoutUpdatearticlesRoute
+  '/editor/_layout/': typeof EditorLayoutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/editor' | '/login' | '/article/$slug' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/article/$slug'
+    | '/editor'
+    | '/api/auth/$'
+    | '/editor/createarticles'
+    | '/editor/createuser'
+    | '/editor/enablemaintenance'
+    | '/editor/managearticles'
+    | '/editor/manageuser'
+    | '/editor/updatearticles'
+    | '/editor/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/editor' | '/login' | '/article/$slug' | '/api/auth/$'
-  id: '__root__' | '/' | '/editor' | '/login' | '/article/$slug' | '/api/auth/$'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/article/$slug'
+    | '/api/auth/$'
+    | '/editor/createarticles'
+    | '/editor/createuser'
+    | '/editor/enablemaintenance'
+    | '/editor/managearticles'
+    | '/editor/manageuser'
+    | '/editor/updatearticles'
+    | '/editor'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/article/$slug'
+    | '/editor/_layout'
+    | '/api/auth/$'
+    | '/editor/_layout/createarticles'
+    | '/editor/_layout/createuser'
+    | '/editor/_layout/enablemaintenance'
+    | '/editor/_layout/managearticles'
+    | '/editor/_layout/manageuser'
+    | '/editor/_layout/updatearticles'
+    | '/editor/_layout/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  EditorRoute: typeof EditorRoute
   LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
   ArticleSlugRoute: typeof ArticleSlugRoute
+  EditorLayoutRoute: typeof EditorLayoutRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/editor': {
-      id: '/editor'
-      path: '/editor'
-      fullPath: '/editor'
-      preLoaderRoute: typeof EditorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -102,12 +217,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/editor/_layout': {
+      id: '/editor/_layout'
+      path: '/editor'
+      fullPath: '/editor'
+      preLoaderRoute: typeof EditorLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/article/$slug': {
       id: '/article/$slug'
       path: '/article/$slug'
       fullPath: '/article/$slug'
       preLoaderRoute: typeof ArticleSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/editor/_layout/': {
+      id: '/editor/_layout/'
+      path: '/'
+      fullPath: '/editor/'
+      preLoaderRoute: typeof EditorLayoutIndexRouteImport
+      parentRoute: typeof EditorLayoutRoute
+    }
+    '/editor/_layout/updatearticles': {
+      id: '/editor/_layout/updatearticles'
+      path: '/updatearticles'
+      fullPath: '/editor/updatearticles'
+      preLoaderRoute: typeof EditorLayoutUpdatearticlesRouteImport
+      parentRoute: typeof EditorLayoutRoute
+    }
+    '/editor/_layout/manageuser': {
+      id: '/editor/_layout/manageuser'
+      path: '/manageuser'
+      fullPath: '/editor/manageuser'
+      preLoaderRoute: typeof EditorLayoutManageuserRouteImport
+      parentRoute: typeof EditorLayoutRoute
+    }
+    '/editor/_layout/managearticles': {
+      id: '/editor/_layout/managearticles'
+      path: '/managearticles'
+      fullPath: '/editor/managearticles'
+      preLoaderRoute: typeof EditorLayoutManagearticlesRouteImport
+      parentRoute: typeof EditorLayoutRoute
+    }
+    '/editor/_layout/enablemaintenance': {
+      id: '/editor/_layout/enablemaintenance'
+      path: '/enablemaintenance'
+      fullPath: '/editor/enablemaintenance'
+      preLoaderRoute: typeof EditorLayoutEnablemaintenanceRouteImport
+      parentRoute: typeof EditorLayoutRoute
+    }
+    '/editor/_layout/createuser': {
+      id: '/editor/_layout/createuser'
+      path: '/createuser'
+      fullPath: '/editor/createuser'
+      preLoaderRoute: typeof EditorLayoutCreateuserRouteImport
+      parentRoute: typeof EditorLayoutRoute
+    }
+    '/editor/_layout/createarticles': {
+      id: '/editor/_layout/createarticles'
+      path: '/createarticles'
+      fullPath: '/editor/createarticles'
+      preLoaderRoute: typeof EditorLayoutCreatearticlesRouteImport
+      parentRoute: typeof EditorLayoutRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -119,11 +290,36 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface EditorLayoutRouteChildren {
+  EditorLayoutCreatearticlesRoute: typeof EditorLayoutCreatearticlesRoute
+  EditorLayoutCreateuserRoute: typeof EditorLayoutCreateuserRoute
+  EditorLayoutEnablemaintenanceRoute: typeof EditorLayoutEnablemaintenanceRoute
+  EditorLayoutManagearticlesRoute: typeof EditorLayoutManagearticlesRoute
+  EditorLayoutManageuserRoute: typeof EditorLayoutManageuserRoute
+  EditorLayoutUpdatearticlesRoute: typeof EditorLayoutUpdatearticlesRoute
+  EditorLayoutIndexRoute: typeof EditorLayoutIndexRoute
+}
+
+const EditorLayoutRouteChildren: EditorLayoutRouteChildren = {
+  EditorLayoutCreatearticlesRoute: EditorLayoutCreatearticlesRoute,
+  EditorLayoutCreateuserRoute: EditorLayoutCreateuserRoute,
+  EditorLayoutEnablemaintenanceRoute: EditorLayoutEnablemaintenanceRoute,
+  EditorLayoutManagearticlesRoute: EditorLayoutManagearticlesRoute,
+  EditorLayoutManageuserRoute: EditorLayoutManageuserRoute,
+  EditorLayoutUpdatearticlesRoute: EditorLayoutUpdatearticlesRoute,
+  EditorLayoutIndexRoute: EditorLayoutIndexRoute,
+}
+
+const EditorLayoutRouteWithChildren = EditorLayoutRoute._addFileChildren(
+  EditorLayoutRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  EditorRoute: EditorRoute,
   LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
   ArticleSlugRoute: ArticleSlugRoute,
+  EditorLayoutRoute: EditorLayoutRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

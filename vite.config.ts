@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+/// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -23,14 +25,6 @@ const config = defineConfig({
       },
     }),
   ],
-  test: {
-    coverage: {
-      enabled: true,
-      include: ["src/**/*.{ts,tsx}"],
-      provider: "istanbul",
-      reportsDirectory: "coverage",
-    },
-  },
   optimizeDeps: {
     esbuildOptions: {
       // Node.js global to browser globalThis

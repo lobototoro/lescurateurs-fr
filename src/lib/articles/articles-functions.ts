@@ -1,9 +1,9 @@
 import { fixedDb } from "db/drizzle";
 import { eq } from "drizzle-orm";
+import slugify from "slugify";
 
-import { articles, slugs } from "db/schema";
-// import type { Article } from "@/models/articles";
-// import type { Slugs } from "@/models/slugs";
+import { articles, slugs, type Json } from "db/schema";
+import { ulid } from "ulid";
 
 /**
  * Module for article and slug database operations.
@@ -100,7 +100,7 @@ export const getAllSlugs = async (): Promise<(typeof slugs.$inferInsert)[]> => {
  * console.log(article.title);
  * ```
  */
-export const fetchArticleById = async (articleId: number): Promise<typeof articles.$inferInsert> => {
+export const fetchArticleById = async (articleId: string): Promise<typeof articles.$inferInsert> => {
   try {
     const article = await fixedDb.query.articles.findFirst({
       where: eq(articles.id, articleId),
@@ -171,21 +171,23 @@ export const fetchArticleBySlug = async (slug: string): Promise<typeof articles.
  * }
  * ```
  */
-export const createSlug = async (slugObject: Omit<typeof slugs.$inferInsert, "id">): Promise<CustomResponseT> => {
+export const createSlug = async (slugObject: typeof slugs.$inferInsert): Promise<CustomResponseT> => {
   try {
-    const { slug, createdAt, articleId, validated } = slugObject;
-    const createSlugResponse = await fixedDb
+    const { id, slug, createdAt, articleId, validated } = slugObject;
+
+    await fixedDb
       .insert(slugs)
       .values({
-        id: 0, // placeholder id, will be auto-generated
+        id,
         slug,
         createdAt,
         articleId,
         validated,
       })
+      .onConflictDoNothing({
+        target: slugs.id,
+      })
       .returning();
-
-    console.log("create Slug response ", createSlugResponse);
 
     return {
       isSuccess: true,
@@ -227,39 +229,63 @@ export const createSlug = async (slugObject: Omit<typeof slugs.$inferInsert, "id
  * }
  * ```
  */
-export const createArticle = async (articleObject: Omit<typeof articles.$inferInsert, "id">): Promise<CustomResponseT> => {
+export const createArticle = async (articleObject: FormData): Promise<CustomResponseT> => {
+  console.log("articleObject in createArticle function ", articleObject);
+  const article = {
+    title: articleObject.get("title") as string,
+    introduction: articleObject.get("introduction") as string,
+    main: articleObject.get("main"),
+    urls: JSON.parse(articleObject.get("urls") as string) as Json,
+    main_audio_url: articleObject.get("main_audio_url") as string,
+    url_to_main_illustration: articleObject.get("url_to_main_illustration") as string,
+    created_at: new Date().toISOString(),
+    updated_at: null,
+    updated_by: null,
+    published_at: null,
+    author: articleObject.get("author") as string,
+    author_email: articleObject.get("author_email") as string,
+    validated: false,
+    shipped: false,
+    slug: slugify(articleObject.get("title") as string, { lower: true, remove: /[*+~.()'"!:@]/g }),
+  };
+
   try {
+    const articleGeneratedId = ulid();
     const createArticleResponse = fixedDb
       .insert(articles)
       .values({
-        id: 0,
-        ...articleObject,
+        ...(article as typeof articles.$inferInsert),
+        id: articleGeneratedId,
+      })
+      .onConflictDoNothing({
+        target: articles.id,
       })
       .returning({
         returningArticleId: articles.id,
       });
 
-    console.log("article creation response ", createArticleResponse);
-
-    if (!createArticleResponse) {
-      return {
-        isSuccess: false,
-        status: 400,
-        message: "Article creation failed",
-      };
-    }
-    await createSlug({
-      slug: articleObject.slug,
-      createdAt: new Date().toString(),
+    const slugGeneratedId = ulid();
+    const createSlugResponse = await createSlug({
+      id: slugGeneratedId,
+      slug: article.slug,
+      createdAt: new Date().toISOString(),
       articleId: (await createArticleResponse)[0]?.returningArticleId,
       validated: false,
     });
 
-    return {
-      isSuccess: true,
-      status: 200,
-      message: "Article created successfully",
-    };
+    if (createSlugResponse.isSuccess) {
+      return {
+        isSuccess: true,
+        status: 200,
+        message: "Article & slug created successfully",
+      };
+    } else {
+      return {
+        isSuccess: false,
+        status: 400,
+        message: "Article & slug creation failed",
+      };
+    }
   } catch (error) {
     const errMessage = `Could not create article: ${error}`;
     console.error(errMessage);
@@ -276,39 +302,118 @@ export const createArticle = async (articleObject: Omit<typeof articles.$inferIn
  * Updates an existing article in the database.
  *
  * This function updates an article record in the database with the provided data.
+ * It also updates the corresponding slug entry if a new slug is provided.
  * Note: This function should only be used server-side.
  *
- * @param id - The ID of the article to update.
- * @param articleObject - The article data to update, excluding certain readonly fields.
+ * @param articleObject - An object containing a `data` property with FormData-like article data to update.
+ *                        Required fields: id (string)
+ *                        Optional fields: title, introduction, main, urls (JSON string), main_audio_url,
+ *                                          url_to_main_illustration, updated_at, updated_by, slug
  * @returns {Promise<CustomResponseT>} A promise that resolves to a response object indicating success or failure.
+ *                                      The message includes detailed information about which operations succeeded/failed.
+ * @throws {Error} If required fields are missing or if JSON parsing fails for the urls field.
  *
  * @example
  * ```typescript
- * const response = await updateArticle(123, {
- *   content: "Updated content...",
- *   excerpt: "Updated excerpt...",
- *   // ... other updatable article properties
- * });
+ * const articleData = {
+ *   data: new FormData()
+ * };
+ * articleData.data.append("id", "article-id");
+ * articleData.data.append("title", "Updated Article Title");
+ * articleData.data.append("slug", "updated-article-slug");
+ * articleData.data.append("urls", JSON.stringify([{url: "https://example.com"}]));
+ * // ... append other article properties to update
+ * const response = await updateArticle(articleData);
  * if (response.isSuccess) {
- *   console.log("Article updated successfully");
+ *   console.log(response.message); // "Slug updated successfully. Article updated successfully."
  * }
  * ```
  */
-export const updateArticle = async (id: number, articleObject: Omit<typeof articles.$inferInsert, "id" | "createdAt" | "title" | "slug">): Promise<CustomResponseT> => {
-  try {
-    const updateArticleResponse = fixedDb
-      .update(articles)
-      .set({
-        ...articleObject,
-      })
-      .where(eq(articles.id, id));
+export const updateArticle = async (articleObject: FormData): Promise<CustomResponseT> => {
+  let successMessage = "";
+  let errorMessage = "";
 
-    console.log("article update response ", updateArticleResponse);
+  try {
+    // Validate required fields
+    if (!articleObject.get("id")) {
+      return {
+        isSuccess: false,
+        status: 400,
+        message: "Article ID is required",
+      };
+    }
+
+    // Parse URLs with error handling
+    let urls: Json;
+    try {
+      urls = JSON.parse(articleObject.get("urls") as string) as Json;
+    } catch (parseError) {
+      return {
+        isSuccess: false,
+        status: 400,
+        message: `Invalid JSON in URLs field: ${parseError}`,
+      };
+    }
+
+    // Update slug if provided
+    if (articleObject.get("slug")) {
+      try {
+        const updateSlugResponse = await fixedDb
+          .update(slugs)
+          .set({
+            slug: articleObject.get("slug") as string,
+          })
+          .where(eq(slugs.articleId, articleObject.get("id") as string))
+          .returning();
+
+        if (updateSlugResponse.length === 0) {
+          errorMessage += "Slug update failed - no rows affected. ";
+        } else {
+          successMessage += "Slug updated successfully. ";
+        }
+      } catch (slugError) {
+        errorMessage += `Slug update failed: ${slugError}. `;
+      }
+    }
+
+    // Update article
+    const updateCandidate = {
+      title: articleObject.get("title") as string,
+      introduction: articleObject.get("introduction") as string,
+      main: articleObject.get("main") as string,
+      urls,
+      main_audio_url: articleObject.get("main_audio_url") as string,
+      url_to_main_illustration: articleObject.get("url_to_main_illustration") as string,
+      updated_at: articleObject.get("updated_at") as string,
+      updated_by: articleObject.get("updated_by") as string,
+    };
+
+    try {
+      const updateArticleResponse = await fixedDb
+        .update(articles)
+        .set({
+          ...updateCandidate,
+          ...(articleObject.get("slug") ? { slug: articleObject.get("slug") as string } : {}),
+        })
+        .where(eq(articles.id, articleObject.get("id") as string))
+        .returning();
+
+      if (updateArticleResponse.length === 0) {
+        errorMessage += "Article update failed - no rows affected. ";
+      } else {
+        successMessage += "Article updated successfully. ";
+      }
+    } catch (articleError) {
+      errorMessage += `Article update failed: ${articleError}. `;
+    }
+
+    // Determine overall success
+    const isSuccess = !errorMessage || (errorMessage.includes("Slug update failed") && successMessage.includes("Article updated"));
 
     return {
-      isSuccess: true,
-      status: 200,
-      message: "Article updated successfully",
+      isSuccess,
+      status: isSuccess ? 200 : 400,
+      message: (errorMessage + successMessage).trim() || "Article updated successfully",
     };
   } catch (error) {
     const errMessage = `Could not update article: ${error}`;
@@ -322,26 +427,31 @@ export const updateArticle = async (id: number, articleObject: Omit<typeof artic
   }
 };
 
+const testID = (id: string) => {
+  if (id.startsWith("markfordeletion|")) {
+    return id.replace("markfordeletion|", "");
+  }
+  return id;
+};
 /**
  * Deletes an article from the database.
+ * this function adds to "markfordeletion|" prefix to the article's slug instead of deleting the record to keep a trace of it and avoid potential issues with foreign key constraints, but it can be easily modified to perform a hard delete if needed.
+ * When "markfordeletion|" prefix is added, valdiated is false.
  *
- * This function removes an article record from the database by its ID.
- * Note: This function should only be used server-side.
- *
- * @param id - The ID of the article to delete.
- * @returns {Promise<CustomResponseT>} A promise that resolves to a response object indicating success or failure.
- *
- * @example
- * ```typescript
- * const response = await deleteArticle(123);
- * if (response.isSuccess) {
- *   console.log("Article deleted successfully");
- * }
- * ```
  */
-export const deleteArticle = async (id: number): Promise<CustomResponseT> => {
+export const deleteArticle = async (id: string, deleteFlag: boolean, updatedBy: string): Promise<CustomResponseT> => {
+  const transformedId = deleteFlag ? `markfordeletion|${id}` : testID(id);
+  const updateAt = new Date().toISOString();
   try {
-    const deleteArticleResponse = fixedDb.delete(articles).where(eq(articles.id, id));
+    const deleteArticleResponse = await fixedDb
+      .update(articles)
+      .set({
+        // TODO: this should also update the corresponding slug's slug property to keep them in sync, but it would require a transaction to ensure atomicity
+        id: transformedId,
+        updated_at: updateAt,
+        updated_by: updatedBy,
+      })
+      .where(eq(articles.id, id));
 
     console.log("article deletion response ", deleteArticleResponse);
 
@@ -380,16 +490,44 @@ export const deleteArticle = async (id: number): Promise<CustomResponseT> => {
  * }
  * ```
  */
-export const validateArticle = async (id: number, validation: boolean): Promise<CustomResponseT> => {
+export const validateArticle = async (id: string, validation: boolean, updatedBy: string): Promise<CustomResponseT> => {
+  console.log("server side ", { id, validation });
+  const udpatedAt = new Date().toISOString();
   try {
-    const validateArticleResponse = fixedDb
-      .update(articles)
+    const validatedSlugResponse = await fixedDb
+      .update(slugs)
       .set({
         validated: validation,
+      })
+      .where(eq(slugs.articleId, id));
+
+    console.log("slug validation response ", validatedSlugResponse);
+
+    if (!validatedSlugResponse || validatedSlugResponse.count === 0) {
+      return {
+        isSuccess: false,
+        status: 404,
+        message: "Slug not found for the given article ID",
+      };
+    }
+    const validateArticleResponse = await fixedDb
+      .update(articles) // TODO: this should also update the corresponding slug's validated property to keep them in sync, but it would require a transaction to ensure atomicity
+      .set({
+        validated: validation,
+        updated_at: udpatedAt,
+        updated_by: updatedBy,
       })
       .where(eq(articles.id, id));
 
     console.log("article validation response ", validateArticleResponse);
+
+    if (!validateArticleResponse || validateArticleResponse.count === 0) {
+      return {
+        isSuccess: false,
+        status: 404,
+        message: "Article not found for the given ID",
+      };
+    }
 
     return {
       isSuccess: true,
@@ -426,32 +564,34 @@ export const validateArticle = async (id: number, validation: boolean): Promise<
  * }
  * ```
  */
-export const shipArticle = async (id: number, shipValue: boolean): Promise<CustomResponseT> => {
+export const shipArticle = async (id: string, shipValue: boolean, updatedBy: string): Promise<CustomResponseT> => {
+  const udpatedAt = new Date().toISOString();
   try {
-    const actualStatus = await fetchArticleById(id);
+    // First, check if the article exists and is validated
+    const article = await fixedDb.select().from(articles).where(eq(articles.id, id)).limit(1);
 
-    if (!actualStatus) {
+    if (!article || article.length === 0) {
       return {
         isSuccess: false,
         status: 404,
-        message: "Article not found",
+        message: "Article not found for the given ID",
       };
     }
 
-    const actualShippedStatus = actualStatus.shipped;
-
-    if (actualShippedStatus === shipValue) {
+    if (!article[0].validated) {
       return {
         isSuccess: false,
         status: 400,
-        message: "Article already has the same shipping status",
+        message: "Article must be validated before it can be shipped",
       };
     }
 
-    const shipArticleResponse = fixedDb
+    const shipArticleResponse = await fixedDb
       .update(articles)
       .set({
         shipped: shipValue,
+        updated_at: udpatedAt,
+        updated_by: updatedBy,
       })
       .where(eq(articles.id, id));
 
