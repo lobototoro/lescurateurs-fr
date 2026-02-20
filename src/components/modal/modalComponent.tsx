@@ -6,7 +6,7 @@ interface ModalCompProps {
   message: string;
   articleId: string;
   choice: boolean;
-  action: (id: string, choice?: boolean) => void;
+  action: (articleId: string, choice: boolean) => Promise<void>;
 }
 
 export const ModalComponent = ModalManager.create<ModalCompProps & Record<string, unknown>>(({ message, articleId, choice, action }) => {
@@ -15,7 +15,9 @@ export const ModalComponent = ModalManager.create<ModalCompProps & Record<string
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    action(articleId, choice);
+    if (typeof action === "function") {
+      await action(articleId, choice);
+    }
     modal.close({ saved: true });
   };
 

@@ -15,21 +15,21 @@ import { ModalComponent } from "@/components/modal/modalComponent";
 import { deleteArticle, validateArticle, shipArticle } from "@/lib/articles/articles-functions";
 
 export const deleteArticleServer = createServerFn({ method: "POST" })
-  .inputValidator((data: { id: string }) => data)
+  .inputValidator((data: { id: string; deleteFlag: boolean; updatedBy: string }) => data)
   .handler(async ({ data }) => {
-    return await deleteArticle(data.id);
+    return await deleteArticle(data.id, data.deleteFlag, data.updatedBy);
   });
 
 export const validateArticleServer = createServerFn({ method: "POST" })
-  .inputValidator((data: { id: string; validatedBy: boolean }) => data)
+  .inputValidator((data: { id: string; validated: boolean; updatedBy: string }) => data)
   .handler(async ({ data }) => {
-    return await validateArticle(data.id, data.validatedBy);
+    return await validateArticle(data.id, data.validated, data.updatedBy);
   });
 
 export const shipArticleServer = createServerFn({ method: "POST" })
-  .inputValidator((data: { id: string; shippedBy: boolean }) => data)
+  .inputValidator((data: { id: string; shipped: boolean; updatedBy: string }) => data)
   .handler(async ({ data }) => {
-    return await shipArticle(data.id, data.shippedBy);
+    return await shipArticle(data.id, data.shipped, data.updatedBy);
   });
 
 export const searchByIdServer = createServerFn({ method: "GET" })
@@ -66,49 +66,118 @@ function RouteComponent() {
     return result;
   };
 
+  const handleResult = async (func: any, choice: Record<string, any>) => {
+    try {
+      const actionRequest = await func({ data: choice });
+      console.info("in handleresult func ", actionRequest);
+      if (actionRequest.isSuccess) {
+        toast.success("Opération réussie !");
+      }
+    } catch (error) {
+      toast.error(`Une erreur est survenue : ${error}. Veuillez réessayer.`);
+    }
+  };
+
   const handleGroupButtonsActions = async (articleId: string, actionType: string) => {
     console.info(`Action "${actionType}" triggered for article ID: ${articleId}`);
+    let choice = {};
     // on call, display a prompt to confirm the action, then execute the corresponding function based on the actionType (e.g., "edit", "delete", "publish")
     switch (actionType) {
-      case "Dé-valider":
+      case "Dé-valider": {
         // call the function to invalidate the article
-        break;
-      case "Valider": {
-        // open modal and call the function to validate the article if the user confirms
-        const handleresult = async (id: string, choice: boolean) => {
-          try {
-            const actionRequest = await validateArticleServer({ data: { id, validatedBy: choice } });
-            console.info("in handleresult func ", actionRequest);
-            if (actionRequest.isSuccess) {
-              toast.success("Opération réussie !");
-            }
-          } catch (error) {
-            toast.error(`Une erreur est survenue : ${error}. Veuillez réessayer.`);
-          }
-        };
-        const choice = {
+        choice = {
           message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
           articleId,
           argument: true,
-          action: handleresult,
+          action: handleResult(validateArticleServer, {
+            id: articleId,
+            validated: false,
+            updatedBy: userSessionInfos.name,
+          }),
         };
-        await handleChoice(choice);
+
         break;
       }
-      case "Mettre offline":
+      case "Valider": {
+        // open modal and call the function to validate the article if the user confirms
+        choice = {
+          message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
+          articleId,
+          argument: true,
+          action: handleResult(validateArticleServer, {
+            id: articleId,
+            validated: true,
+            updatedBy: userSessionInfos.name,
+          }),
+        };
+
+        break;
+      }
+      case "Mettre offline": {
         // call the function to take the article offline
+        choice = {
+          message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
+          articleId,
+          argument: true,
+          action: handleResult(shipArticleServer, {
+            id: articleId,
+            shipped: false,
+            updatedBy: userSessionInfos.name,
+          }),
+        };
+
         break;
-      case "Déployer":
+      }
+      case "Déployer": {
         // call the function to deploy the article
+        choice = {
+          message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
+          articleId,
+          argument: true,
+          action: handleResult(shipArticleServer, {
+            id: articleId,
+            shipped: true,
+            updatedBy: userSessionInfos.name,
+          }),
+        };
+
         break;
-      case "Supprimer":
+      }
+      case "Supprimer": {
         // call the function to delete the article
+        choice = {
+          message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
+          articleId,
+          argument: true,
+          action: handleResult(deleteArticleServer, {
+            id: articleId,
+            deleteFlag: true,
+            updatedBy: userSessionInfos.name,
+          }),
+        };
+
         break;
-      case "Restaurer":
+      }
+      case "Restaurer": {
         // call the function to restore the article
+        choice = {
+          message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
+          articleId,
+          argument: true,
+          action: handleResult(deleteArticleServer, {
+            id: articleId,
+            deleteFlag: false,
+            updatedBy: userSessionInfos.name,
+          }),
+        };
+
         break;
+      }
       default:
         toast.error(`Unknown action type: ${actionType}`);
+    }
+    if (Object.keys(choice).length > 0) {
+      await handleChoice(choice);
     }
   };
 

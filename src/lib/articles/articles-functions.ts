@@ -427,19 +427,29 @@ export const updateArticle = async (articleObject: FormData): Promise<CustomResp
   }
 };
 
+const testID = (id: string) => {
+  if (id.startsWith("markfordeletion|")) {
+    return id.replace("markfordeletion|", "");
+  }
+  return id;
+};
 /**
  * Deletes an article from the database.
  * this function adds to "markfordeletion|" prefix to the article's slug instead of deleting the record to keep a trace of it and avoid potential issues with foreign key constraints, but it can be easily modified to perform a hard delete if needed.
+ * When "markfordeletion|" prefix is added, valdiated is false.
  *
  */
-export const deleteArticle = async (id: string): Promise<CustomResponseT> => {
-  const deletedId = `markfordeletion|${id}`;
+export const deleteArticle = async (id: string, deleteFlag: boolean, updatedBy: string): Promise<CustomResponseT> => {
+  const transformedId = deleteFlag ? `markfordeletion|${id}` : testID(id);
+  const updateAt = new Date().toISOString();
   try {
-    const deleteArticleResponse = fixedDb
+    const deleteArticleResponse = await fixedDb
       .update(articles)
       .set({
         // TODO: this should also update the corresponding slug's slug property to keep them in sync, but it would require a transaction to ensure atomicity
-        id: deletedId,
+        id: transformedId,
+        updated_at: updateAt,
+        updated_by: updatedBy,
       })
       .where(eq(articles.id, id));
 
@@ -480,17 +490,44 @@ export const deleteArticle = async (id: string): Promise<CustomResponseT> => {
  * }
  * ```
  */
-export const validateArticle = async (id: string, validation: boolean): Promise<CustomResponseT> => {
+export const validateArticle = async (id: string, validation: boolean, updatedBy: string): Promise<CustomResponseT> => {
   console.log("server side ", { id, validation });
+  const udpatedAt = new Date().toISOString();
   try {
-    // const validateArticleResponse = fixedDb
-    //   .update(articles) // TODO: this should also update the corresponding slug's validated property to keep them in sync, but it would require a transaction to ensure atomicity
-    //   .set({
-    //     validated: validation,
-    //   })
-    //   .where(eq(articles.id, id));
+    const validatedSlugResponse = await fixedDb
+      .update(slugs)
+      .set({
+        validated: validation,
+      })
+      .where(eq(slugs.articleId, id));
 
-    // console.log("article validation response ", validateArticleResponse);
+    console.log("slug validation response ", validatedSlugResponse);
+
+    if (!validatedSlugResponse || validatedSlugResponse.count === 0) {
+      return {
+        isSuccess: false,
+        status: 404,
+        message: "Slug not found for the given article ID",
+      };
+    }
+    const validateArticleResponse = await fixedDb
+      .update(articles) // TODO: this should also update the corresponding slug's validated property to keep them in sync, but it would require a transaction to ensure atomicity
+      .set({
+        validated: validation,
+        updated_at: udpatedAt,
+        updated_by: updatedBy,
+      })
+      .where(eq(articles.id, id));
+
+    console.log("article validation response ", validateArticleResponse);
+
+    if (!validateArticleResponse || validateArticleResponse.count === 0) {
+      return {
+        isSuccess: false,
+        status: 404,
+        message: "Article not found for the given ID",
+      };
+    }
 
     return {
       isSuccess: true,
@@ -527,32 +564,34 @@ export const validateArticle = async (id: string, validation: boolean): Promise<
  * }
  * ```
  */
-export const shipArticle = async (id: string, shipValue: boolean): Promise<CustomResponseT> => {
+export const shipArticle = async (id: string, shipValue: boolean, updatedBy: string): Promise<CustomResponseT> => {
+  const udpatedAt = new Date().toISOString();
   try {
-    const actualStatus = await fetchArticleById(id);
+    // First, check if the article exists and is validated
+    const article = await fixedDb.select().from(articles).where(eq(articles.id, id)).limit(1);
 
-    if (!actualStatus) {
+    if (!article || article.length === 0) {
       return {
         isSuccess: false,
         status: 404,
-        message: "Article not found",
+        message: "Article not found for the given ID",
       };
     }
 
-    const actualShippedStatus = actualStatus.shipped;
-
-    if (actualShippedStatus === shipValue) {
+    if (!article[0].validated) {
       return {
         isSuccess: false,
         status: 400,
-        message: "Article already has the same shipping status",
+        message: "Article must be validated before it can be shipped",
       };
     }
 
-    const shipArticleResponse = fixedDb
+    const shipArticleResponse = await fixedDb
       .update(articles)
       .set({
         shipped: shipValue,
+        updated_at: udpatedAt,
+        updated_by: updatedBy,
       })
       .where(eq(articles.id, id));
 

@@ -9,6 +9,11 @@ vi.mock("db/drizzle", () => {
   const mockOnConflictDoNothing = vi.fn(() => ({ returning: mockReturning }));
   const mockValues = vi.fn(() => ({ onConflictDoNothing: mockOnConflictDoNothing }));
   const mockInsert = vi.fn(() => ({ values: mockValues }));
+  const mockSelect = vi.fn(() => ({
+    from: vi.fn().mockReturnThis(),
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+  }));
 
   return {
     fixedDb: {
@@ -24,6 +29,7 @@ vi.mock("db/drizzle", () => {
       insert: mockInsert,
       update: vi.fn(),
       delete: vi.fn(),
+      select: mockSelect,
     },
     // Export the mock functions so tests can access them
     mockReturning,
@@ -458,11 +464,11 @@ describe("articles-functions", () => {
     });
 
     it("should return error response when article deletion fails", async () => {
-      (fixedDb.delete as Mock).mockImplementation(() => {
+      (fixedDb.update as Mock).mockImplementation(() => {
         throw new Error("Database error");
       });
 
-      const result = await articlesFunctions.deleteArticle("123");
+      const result = await articlesFunctions.deleteArticle("123", true, "admin");
 
       expect(result).toEqual({
         isSuccess: false,
@@ -479,7 +485,7 @@ describe("articles-functions", () => {
         where: vi.fn().mockResolvedValue([{ id: "123" }]),
       });
 
-      const result = await articlesFunctions.validateArticle("123", true);
+      const result = await articlesFunctions.validateArticle("123", true, "admin");
 
       expect(result).toEqual({
         isSuccess: true,
@@ -493,7 +499,7 @@ describe("articles-functions", () => {
         throw new Error("Database error");
       });
 
-      const result = await articlesFunctions.validateArticle("123", true);
+      const result = await articlesFunctions.validateArticle("123", true, "admin");
 
       expect(result).toEqual({
         isSuccess: false,
@@ -505,15 +511,21 @@ describe("articles-functions", () => {
 
   describe("shipArticle", () => {
     it("should ship an article and return success response", async () => {
-      const mockArticle = { id: "123", shipped: false };
+      const mockArticle = { id: "123", shipped: false, validated: true };
 
-      (fixedDb.query.articles.findFirst as Mock).mockResolvedValue(mockArticle);
+      const mockSelectChain = {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([mockArticle]),
+      };
+
+      (fixedDb.select as Mock).mockReturnValue(mockSelectChain);
       (fixedDb.update as Mock).mockReturnValue({
         set: vi.fn().mockReturnThis(),
-        where: vi.fn().mockResolvedValue([{ id: "123" }]),
+        where: vi.fn().mockResolvedValue({ count: 1 }),
       });
 
-      const result = await articlesFunctions.shipArticle("123", true);
+      const result = await articlesFunctions.shipArticle("123", true, "admin");
 
       expect(result).toEqual({
         isSuccess: true,
@@ -523,38 +535,56 @@ describe("articles-functions", () => {
     });
 
     it("should return error response when article is not found", async () => {
-      (fixedDb.query.articles.findFirst as Mock).mockResolvedValue(null);
+      const mockSelectChain = {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([]),
+      };
 
-      const result = await articlesFunctions.shipArticle("999", true);
+      (fixedDb.select as Mock).mockReturnValue(mockSelectChain);
+
+      const result = await articlesFunctions.shipArticle("999", true, "admin");
 
       expect(result.isSuccess).toBe(false);
-      expect(result.status).toBe(400);
-      expect(result.message).toContain("Could not find article with id 999");
+      expect(result.status).toBe(404);
+      expect(result.message).toBe("Article not found for the given ID");
     });
 
-    it("should return error response when article already has the same shipping status", async () => {
-      const mockArticle = { id: "123", shipped: true }; // already shipped
+    it("should return error response when article is not validated", async () => {
+      const mockArticle = { id: "123", shipped: false, validated: false };
 
-      (fixedDb.query.articles.findFirst as Mock).mockResolvedValue(mockArticle);
+      const mockSelectChain = {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([mockArticle]),
+      };
 
-      const result = await articlesFunctions.shipArticle("123", true); // trying to ship again
+      (fixedDb.select as Mock).mockReturnValue(mockSelectChain);
+
+      const result = await articlesFunctions.shipArticle("123", true, "admin");
 
       expect(result).toEqual({
         isSuccess: false,
         status: 400,
-        message: "Article already has the same shipping status",
+        message: "Article must be validated before it can be shipped",
       });
     });
 
     it("should return error response when shipping fails", async () => {
-      const mockArticle = { id: "123", shipped: false };
+      const mockArticle = { id: "123", shipped: false, validated: true };
 
-      (fixedDb.query.articles.findFirst as Mock).mockResolvedValue(mockArticle);
+      const mockSelectChain = {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([mockArticle]),
+      };
+
+      (fixedDb.select as Mock).mockReturnValue(mockSelectChain);
       (fixedDb.update as Mock).mockImplementation(() => {
         throw new Error("Database error");
       });
 
-      const result = await articlesFunctions.shipArticle("123", true);
+      const result = await articlesFunctions.shipArticle("123", true, "admin");
 
       expect(result).toEqual({
         isSuccess: false,
