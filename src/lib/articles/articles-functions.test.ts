@@ -454,7 +454,7 @@ describe("articles-functions", () => {
         where: vi.fn().mockResolvedValue([{ id: "123" }]),
       });
 
-      const result = await articlesFunctions.deleteArticle("123");
+      const result = await articlesFunctions.deleteArticle("123", true, "admin");
 
       expect(result).toEqual({
         isSuccess: true,
