@@ -23,13 +23,13 @@ describe("HeaderMenu", () => {
     const role = "contributor";
     const permissions = ["read:articles", "create:articles", "update:articles"];
 
-    render(<HeaderMenu role={role} permissions={permissions} />);
+    render(<HeaderMenu role={role} permissions={permissions} logoutAction={() => {}} />);
 
     expect(screen.getByText(/Role : contributor/)).toBeInTheDocument();
   });
 
   it("does not render if permissions are empty", () => {
-    const { container } = render(<HeaderMenu role="user" permissions={[]} />);
+    const { container } = render(<HeaderMenu role="user" permissions={[]} logoutAction={() => {}} />);
 
     expect(container.firstChild).toBeNull();
   });
@@ -38,7 +38,7 @@ describe("HeaderMenu", () => {
     const role = "contributor";
     const permissions = ["read:articles", "create:articles", "update:articles"];
 
-    render(<HeaderMenu role={role} permissions={permissions} />);
+    render(<HeaderMenu role={role} permissions={permissions} logoutAction={() => {}} />);
 
     expect(screen.queryByText("read articles")).not.toBeInTheDocument();
     expect(screen.getByText("create articles")).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe("HeaderMenu", () => {
       "enable:maintenance",
     ];
 
-    render(<HeaderMenu role="admin" permissions={adminPermissions} />);
+    render(<HeaderMenu role="admin" permissions={adminPermissions} logoutAction={() => {}} />);
 
     // For admin:
     // 1. Filter out specific permissions: delete:articles, validate:articles, ship:articles, update:user, delete:user
@@ -78,7 +78,7 @@ describe("HeaderMenu", () => {
   it("renders correct menu items for non-admin role with modified permissions", () => {
     const permissions = ["create:articles", "update:articles", "delete:articles", "validate:articles", "ship:articles"];
 
-    render(<HeaderMenu role="contributor" permissions={permissions} />);
+    render(<HeaderMenu role="contributor" permissions={permissions} logoutAction={() => {}} />);
 
     // For non-admin:
     // 1. No filtering happens since it's not admin
@@ -97,7 +97,7 @@ describe("HeaderMenu", () => {
   it("navigates to correct route when clicking menu item", () => {
     const permissions = ["create:articles", "update:articles"];
 
-    render(<HeaderMenu role="contributor" permissions={permissions} />);
+    render(<HeaderMenu role="contributor" permissions={permissions} logoutAction={() => {}} />);
 
     const createButton = screen.getByText("create articles");
     fireEvent.click(createButton);
@@ -111,7 +111,7 @@ describe("HeaderMenu", () => {
   it("renders buttons with correct titles", () => {
     const permissions = ["create:articles"];
 
-    render(<HeaderMenu role="contributor" permissions={permissions} />);
+    render(<HeaderMenu role="contributor" permissions={permissions} logoutAction={() => {}} />);
 
     const createButton = screen.getByText("create articles");
     expect(createButton).toHaveAttribute("title", " create articles");
@@ -119,7 +119,7 @@ describe("HeaderMenu", () => {
 
   it("handles empty permissions gracefully", () => {
     // When permissions are empty, the component should return null
-    const { container } = render(<HeaderMenu role="contributor" permissions={[]} />);
+    const { container } = render(<HeaderMenu role="contributor" permissions={[]} logoutAction={() => {}} />);
 
     expect(container.firstChild).toBeNull();
   });
