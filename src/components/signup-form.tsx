@@ -31,7 +31,6 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
           name: value.name,
           email: value.email,
           password: value.password,
-          callbackURL: "/editor",
         },
         {
           onSuccess: () => {
