@@ -33,11 +33,11 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
           password: value.password,
         },
         {
-          onSuccess: () => {
-            toast.success("Signup successfully");
+          onSuccess: async () => {
+            toast.success("Signup successfully: an email has been sent to the new user mail address.");
           },
           onError: (ctx) => {
-            toast.error(ctx.error.message || "Somethinig went wrong");
+            toast.error(ctx.error.message || "Something went wrong");
           },
         },
       );

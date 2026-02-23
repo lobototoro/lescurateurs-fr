@@ -172,7 +172,7 @@ describe("SignupForm", () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(toast.success).toHaveBeenCalledWith("Signup successfully");
+        expect(toast.success).toHaveBeenCalledWith("Signup successfully: an email has been sent to the new user mail address.");
       });
     });
 
@@ -225,7 +225,7 @@ describe("SignupForm", () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith("Somethinig went wrong");
+        expect(toast.error).toHaveBeenCalledWith("Something went wrong");
       });
     });
   });

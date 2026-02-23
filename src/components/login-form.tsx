@@ -35,7 +35,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
             toast.success("Form submitted successfully");
           },
           onError: (ctx) => {
-            toast.error(ctx.error.message || "Something went wrong");
+            if (ctx.error.status === 403) {
+              toast.error("Please verify your email address");
+            } else {
+              toast.error(ctx.error.message || "Something went wrong");
+            }
           },
         },
       );

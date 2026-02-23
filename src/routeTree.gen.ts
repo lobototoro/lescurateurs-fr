@@ -9,9 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VerifiedEmailTokenRouteImport } from './routes/verifiedEmail.$token'
 import { Route as EditorLayoutRouteImport } from './routes/editor/_layout'
 import { Route as ArticleSlugRouteImport } from './routes/article/$slug'
 import { Route as EditorLayoutIndexRouteImport } from './routes/editor/_layout/index'
@@ -23,11 +23,6 @@ import { Route as EditorLayoutCreateuserRouteImport } from './routes/editor/_lay
 import { Route as EditorLayoutCreatearticlesRouteImport } from './routes/editor/_layout/createarticles'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -36,6 +31,11 @@ const LoginRoute = LoginRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifiedEmailTokenRoute = VerifiedEmailTokenRouteImport.update({
+  id: '/verifiedEmail/$token',
+  path: '/verifiedEmail/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EditorLayoutRoute = EditorLayoutRouteImport.update({
@@ -96,9 +96,9 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/editor': typeof EditorLayoutRouteWithChildren
+  '/verifiedEmail/$token': typeof VerifiedEmailTokenRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/editor/createarticles': typeof EditorLayoutCreatearticlesRoute
   '/editor/createuser': typeof EditorLayoutCreateuserRoute
@@ -111,8 +111,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/article/$slug': typeof ArticleSlugRoute
+  '/verifiedEmail/$token': typeof VerifiedEmailTokenRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/editor/createarticles': typeof EditorLayoutCreatearticlesRoute
   '/editor/createuser': typeof EditorLayoutCreateuserRoute
@@ -126,9 +126,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/editor/_layout': typeof EditorLayoutRouteWithChildren
+  '/verifiedEmail/$token': typeof VerifiedEmailTokenRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/editor/_layout/createarticles': typeof EditorLayoutCreatearticlesRoute
   '/editor/_layout/createuser': typeof EditorLayoutCreateuserRoute
@@ -143,9 +143,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
-    | '/signup'
     | '/article/$slug'
     | '/editor'
+    | '/verifiedEmail/$token'
     | '/api/auth/$'
     | '/editor/createarticles'
     | '/editor/createuser'
@@ -158,8 +158,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
-    | '/signup'
     | '/article/$slug'
+    | '/verifiedEmail/$token'
     | '/api/auth/$'
     | '/editor/createarticles'
     | '/editor/createuser'
@@ -172,9 +172,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/login'
-    | '/signup'
     | '/article/$slug'
     | '/editor/_layout'
+    | '/verifiedEmail/$token'
     | '/api/auth/$'
     | '/editor/_layout/createarticles'
     | '/editor/_layout/createuser'
@@ -188,21 +188,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
-  SignupRoute: typeof SignupRoute
   ArticleSlugRoute: typeof ArticleSlugRoute
   EditorLayoutRoute: typeof EditorLayoutRouteWithChildren
+  VerifiedEmailTokenRoute: typeof VerifiedEmailTokenRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -215,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verifiedEmail/$token': {
+      id: '/verifiedEmail/$token'
+      path: '/verifiedEmail/$token'
+      fullPath: '/verifiedEmail/$token'
+      preLoaderRoute: typeof VerifiedEmailTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/editor/_layout': {
@@ -317,9 +317,9 @@ const EditorLayoutRouteWithChildren = EditorLayoutRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
-  SignupRoute: SignupRoute,
   ArticleSlugRoute: ArticleSlugRoute,
   EditorLayoutRoute: EditorLayoutRouteWithChildren,
+  VerifiedEmailTokenRoute: VerifiedEmailTokenRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
