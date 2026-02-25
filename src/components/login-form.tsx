@@ -8,6 +8,7 @@ import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { authClient } from "lib/auth/auth-client";
 import { useId } from "react";
+import { Link } from "@tanstack/react-router";
 
 const formSchema = z.object({
   email: z.email("Email invalide"),
@@ -108,6 +109,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   );
                 }}
               />
+              <div className="w-full flex justify-end">
+                <Link to="/requestResetPassword" className="cursor-pointer text-sm">
+                  Mot de passe oublié ?
+                </Link>
+              </div>
               <Field>
                 <Button type="submit">Login</Button>
               </Field>

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/resetPassword'
+import { Route as RequestResetPasswordRouteImport } from './routes/requestResetPassword'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VerifiedEmailTokenRouteImport } from './routes/verifiedEmail.$token'
@@ -27,6 +28,11 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/resetPassword',
   path: '/resetPassword',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestResetPasswordRoute = RequestResetPasswordRouteImport.update({
+  id: '/requestResetPassword',
+  path: '/requestResetPassword',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -102,6 +108,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/requestResetPassword': typeof RequestResetPasswordRoute
   '/resetPassword': typeof ResetPasswordRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/editor': typeof EditorLayoutRouteWithChildren
@@ -118,6 +125,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/requestResetPassword': typeof RequestResetPasswordRoute
   '/resetPassword': typeof ResetPasswordRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/verifiedEmail/$token': typeof VerifiedEmailTokenRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/requestResetPassword': typeof RequestResetPasswordRoute
   '/resetPassword': typeof ResetPasswordRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/editor/_layout': typeof EditorLayoutRouteWithChildren
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/requestResetPassword'
     | '/resetPassword'
     | '/article/$slug'
     | '/editor'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/requestResetPassword'
     | '/resetPassword'
     | '/article/$slug'
     | '/verifiedEmail/$token'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/login'
+    | '/requestResetPassword'
     | '/resetPassword'
     | '/article/$slug'
     | '/editor/_layout'
@@ -200,6 +212,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  RequestResetPasswordRoute: typeof RequestResetPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ArticleSlugRoute: typeof ArticleSlugRoute
   EditorLayoutRoute: typeof EditorLayoutRouteWithChildren
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/resetPassword'
       fullPath: '/resetPassword'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/requestResetPassword': {
+      id: '/requestResetPassword'
+      path: '/requestResetPassword'
+      fullPath: '/requestResetPassword'
+      preLoaderRoute: typeof RequestResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -337,6 +357,7 @@ const EditorLayoutRouteWithChildren = EditorLayoutRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  RequestResetPasswordRoute: RequestResetPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ArticleSlugRoute: ArticleSlugRoute,
   EditorLayoutRoute: EditorLayoutRouteWithChildren,
