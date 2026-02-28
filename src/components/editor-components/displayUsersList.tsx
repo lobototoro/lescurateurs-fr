@@ -21,7 +21,7 @@ export const DisplayUsersList = ({
           <li key={`${user.id}-${idx}`}>
             <Popover>
               <PopoverTrigger asChild>
-                <h2 className="cursor-pointer bg-black hover:bg-violet-600 focus:outline-2 focus:outline-offset-2 focus:outline-violet-500 active:bg-violet-700">
+                <h2 className="cursor-pointer bg-black hover:bg-gray-500 focus:outline-2 focus:outline-offset-2 focus:outline-bg-gray-500 active:bg-bg-gray-700">
                   {user.name}
                 </h2>
               </PopoverTrigger>

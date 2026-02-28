@@ -31,7 +31,7 @@ const updateArticleServerFn = createServerFn({ method: "POST" })
     return await updateArticle(data);
   });
 
-const box: React.CSSProperties = {
+export const box: React.CSSProperties = {
   width: "100%",
   height: "100%",
 };
@@ -92,7 +92,13 @@ function RouteComponent() {
           <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={box} key="box">
             <SlugsSearchComponent setArticlesList={setArticlesList} />
             {articlesList.length > 0 ? (
-              <PaginationSimple itemsList={articlesList} selectedID={setSelectedArticleId} defaultPage={1} defaultLimit={10} triggerAnimation={setIsVisible} />
+              <PaginationSimple
+                itemsList={articlesList}
+                selectedID={setSelectedArticleId}
+                defaultPage={1}
+                defaultLimit={10}
+                triggerAnimation={setIsVisible}
+              />
             ) : (
               <p>Aucun résultat trouvé. Essayez un autre terme de recherche.</p>
             )}
