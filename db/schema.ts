@@ -5,6 +5,8 @@ export const rolesEnum = pgEnum("roles", ["admin", "contributor"]);
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
+export type Permissions = string[];
+
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -17,7 +19,7 @@ export const user = pgTable("user", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
   role: rolesEnum().default("contributor").notNull(),
-  permissions: jsonb("permissions").default([]).notNull(),
+  permissions: jsonb("permissions").$type<Permissions>().default([]).notNull(),
 });
 
 export const session = pgTable(

@@ -59,17 +59,19 @@ function RouteComponent() {
 
   const handleChoice = async (choice: Record<string, any>) => {
     const modalRef = ModalManager.open(ModalComponent, {
-      data: { message: choice.message, articleId: choice.articleId, choice: choice.argument, action: choice.action },
+      data: {
+        message: choice.message,
+        articleId: choice.articleId,
+        choice: choice.argument,
+        action: choice.action,
+      },
     });
-    const result = await modalRef.afterClosed();
-
-    return result;
+    await modalRef.afterClosed();
   };
 
-  const handleResult = async (func: any, choice: Record<string, any>) => {
+  const handleResult = async (func: any, choice: Record<string, any>): Promise<void> => {
     try {
       const actionRequest = await func({ data: choice });
-      console.info("in handleresult func ", actionRequest);
       if (actionRequest.isSuccess) {
         toast.success("Opération réussie !");
       }
@@ -79,7 +81,6 @@ function RouteComponent() {
   };
 
   const handleGroupButtonsActions = async (articleId: string, actionType: string) => {
-    console.info(`Action "${actionType}" triggered for article ID: ${articleId}`);
     let choice = {};
     // on call, display a prompt to confirm the action, then execute the corresponding function based on the actionType (e.g., "edit", "delete", "publish")
     switch (actionType) {
@@ -89,11 +90,13 @@ function RouteComponent() {
           message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
           articleId,
           argument: true,
-          action: handleResult(validateArticleServer, {
-            id: articleId,
-            validated: false,
-            updatedBy: userSessionInfos.name,
-          }),
+          action: async (articleId: string, _choice: boolean) => {
+            await handleResult(validateArticleServer, {
+              id: articleId,
+              validated: false,
+              updatedBy: userSessionInfos.name,
+            });
+          },
         };
 
         break;
@@ -104,11 +107,13 @@ function RouteComponent() {
           message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
           articleId,
           argument: true,
-          action: handleResult(validateArticleServer, {
-            id: articleId,
-            validated: true,
-            updatedBy: userSessionInfos.name,
-          }),
+          action: async (articleId: string, _choice: boolean) => {
+            await handleResult(validateArticleServer, {
+              id: articleId,
+              validated: true,
+              updatedBy: userSessionInfos.name,
+            });
+          },
         };
 
         break;
@@ -119,11 +124,13 @@ function RouteComponent() {
           message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
           articleId,
           argument: true,
-          action: handleResult(shipArticleServer, {
-            id: articleId,
-            shipped: false,
-            updatedBy: userSessionInfos.name,
-          }),
+          action: async (articleId: string, _choice: boolean) => {
+            await handleResult(shipArticleServer, {
+              id: articleId,
+              shipped: false,
+              updatedBy: userSessionInfos.name,
+            });
+          },
         };
 
         break;
@@ -134,11 +141,13 @@ function RouteComponent() {
           message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
           articleId,
           argument: true,
-          action: handleResult(shipArticleServer, {
-            id: articleId,
-            shipped: true,
-            updatedBy: userSessionInfos.name,
-          }),
+          action: async (articleId: string, _choice: boolean) => {
+            await handleResult(shipArticleServer, {
+              id: articleId,
+              shipped: true,
+              updatedBy: userSessionInfos.name,
+            });
+          },
         };
 
         break;
@@ -149,11 +158,13 @@ function RouteComponent() {
           message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
           articleId,
           argument: true,
-          action: handleResult(deleteArticleServer, {
-            id: articleId,
-            deleteFlag: true,
-            updatedBy: userSessionInfos.name,
-          }),
+          action: async (articleId: string, _choice: boolean) => {
+            await handleResult(deleteArticleServer, {
+              id: articleId,
+              deleteFlag: true,
+              updatedBy: userSessionInfos.name,
+            });
+          },
         };
 
         break;
@@ -164,11 +175,13 @@ function RouteComponent() {
           message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
           articleId,
           argument: true,
-          action: handleResult(deleteArticleServer, {
-            id: articleId,
-            deleteFlag: false,
-            updatedBy: userSessionInfos.name,
-          }),
+          action: async (articleId: string, _choice: boolean) => {
+            await handleResult(deleteArticleServer, {
+              id: articleId,
+              deleteFlag: false,
+              updatedBy: userSessionInfos.name,
+            });
+          },
         };
 
         break;
