@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 type ChoiceMode = {
   message: string;
-  articleId: string;
+  articleId: string | null;
   choice: boolean;
   updatedUserProps?: never;
   action: (articleId: string, choice: boolean) => Promise<void>;
@@ -12,10 +12,10 @@ type ChoiceMode = {
 
 type UserPropsMode = {
   message: string;
-  articleId: string;
+  articleId: string | null;
   choice?: never;
-  updatedUserProps: { id: string; name: string; email: string; role: string; permissions: string[] };
-  action: (updatedUserProps: { id: string; name: string; email: string; role: string; permissions: string[] }) => Promise<void>;
+  updatedUserProps: string | { id: string; name: string; email: string; role: string; permissions: string[] };
+  action: (updatedUserProps: string | { id: string; name: string; email: string; role: string; permissions: string[] }) => Promise<void>;
 };
 
 type ModalCompProps = ChoiceMode | UserPropsMode;
@@ -30,7 +30,7 @@ export const ModalComponent = ModalManager.create<ModalCompProps & Record<string
       if (typeof action === "function") {
         try {
           if (choice !== undefined) {
-            await action(articleId, choice);
+            await action(articleId as string, choice);
           } else if (updatedUserProps) {
             await action(updatedUserProps);
           }

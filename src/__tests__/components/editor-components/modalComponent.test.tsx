@@ -145,12 +145,18 @@ describe("ModalComponent", () => {
       permissions: ["read", "write", "edit"],
     };
 
-    it("should call action with articleId and updatedUserProps when Save is clicked", async () => {
+    it("should call action with updatedUserProps when Validez is clicked (update scenario)", async () => {
       const user = userEvent.setup();
       const mockAction = vi.fn().mockResolvedValue(undefined);
 
       render(
-        <ModalComponent message="User update message" articleId="789" updatedUserProps={userProps} action={mockAction} modalId="test-modal-8" />,
+        <ModalComponent
+          message="Etes-vous sûr de vouloir soumettre ces changements ?"
+          articleId={null}
+          updatedUserProps={userProps}
+          action={mockAction}
+          modalId="test-modal-8"
+        />,
       );
 
       await user.click(screen.getByRole("button", { name: "Validez" }));
@@ -160,11 +166,17 @@ describe("ModalComponent", () => {
       });
     });
 
-    it("should call modal.close with { saved: true } when Save is clicked", async () => {
+    it("should call modal.close with { saved: true } when Validez is clicked", async () => {
       const user = userEvent.setup();
 
       render(
-        <ModalComponent message="User update message" articleId="789" updatedUserProps={userProps} action={mockAction} modalId="test-modal-9" />,
+        <ModalComponent
+          message="Etes-vous sûr de vouloir soumettre ces changements ?"
+          articleId={null}
+          updatedUserProps={userProps}
+          action={mockAction}
+          modalId="test-modal-9"
+        />,
       );
 
       await user.click(screen.getByRole("button", { name: "Validez" }));
@@ -173,25 +185,47 @@ describe("ModalComponent", () => {
         expect(mockClose).toHaveBeenCalledWith({ saved: true });
       });
     });
+
+    it("should call action with userId string when Validez is clicked (delete scenario)", async () => {
+      const user = userEvent.setup();
+      const mockAction = vi.fn().mockResolvedValue(undefined);
+      const userId = "user_123";
+
+      render(
+        <ModalComponent
+          message="Etes-vous sûr de vouloir effacer cet utilisateur ?"
+          articleId={null}
+          updatedUserProps={userId}
+          action={mockAction}
+          modalId="test-modal-10"
+        />,
+      );
+
+      await user.click(screen.getByRole("button", { name: "Validez" }));
+
+      await waitFor(() => {
+        expect(mockAction).toHaveBeenCalledWith(userId);
+      });
+    });
   });
 
   describe("Accessibility", () => {
     it("should have dialog with proper aria-describedby attribute", () => {
       const { container } = render(
-        <ModalComponent message="Test message" articleId="123" choice={true} action={mockAction} modalId="test-modal-10" />,
+        <ModalComponent message="Test message" articleId="123" choice={true} action={mockAction} modalId="test-modal-11" />,
       );
 
       expect(container.querySelector("[aria-describedby]")).toBeInTheDocument();
     });
 
     it("should have save button with type submit", () => {
-      render(<ModalComponent message="Test message" articleId="123" choice={true} action={mockAction} modalId="test-modal-11" />);
+      render(<ModalComponent message="Test message" articleId="123" choice={true} action={mockAction} modalId="test-modal-12" />);
 
       expect(screen.getByRole("button", { name: "Validez" })).toHaveAttribute("type", "submit");
     });
 
     it("should have cancel button with type button", () => {
-      render(<ModalComponent message="Test message" articleId="123" choice={true} action={mockAction} modalId="test-modal-12" />);
+      render(<ModalComponent message="Test message" articleId="123" choice={true} action={mockAction} modalId="test-modal-13" />);
 
       expect(screen.getByRole("button", { name: "Cancel" })).toHaveAttribute("type", "button");
     });
@@ -201,7 +235,7 @@ describe("ModalComponent", () => {
     it("should not throw error when action is not a function", async () => {
       const user = userEvent.setup();
 
-      render(<ModalComponent message="Test message" articleId="123" choice={true} action={null as any} modalId="test-modal-13" />);
+      render(<ModalComponent message="Test message" articleId="123" choice={true} action={null as any} modalId="test-modal-14" />);
 
       expect(() => user.click(screen.getByRole("button", { name: "Validez" }))).not.toThrow();
     });
@@ -212,7 +246,7 @@ describe("ModalComponent", () => {
       const errorMessage = "Something went wrong";
       const mockAction = vi.fn().mockRejectedValue(new Error(errorMessage));
 
-      render(<ModalComponent message="Test message" articleId="123" choice={true} action={mockAction} modalId="test-modal-14" />);
+      render(<ModalComponent message="Test message" articleId="123" choice={true} action={mockAction} modalId="test-modal-15" />);
 
       await user.click(screen.getByRole("button", { name: "Validez" }));
 
