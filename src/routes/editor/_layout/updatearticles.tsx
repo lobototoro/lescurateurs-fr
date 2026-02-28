@@ -96,7 +96,7 @@ function RouteComponent() {
                 itemsList={articlesList}
                 selectedID={setSelectedArticleId}
                 defaultPage={1}
-                defaultLimit={10}
+                defaultLimit={5}
                 triggerAnimation={setIsVisible}
               />
             ) : (
@@ -107,7 +107,7 @@ function RouteComponent() {
       </AnimatePresence>
       <Button
         variant={isVisible ? "outline" : "default"}
-        className="mt-4"
+        className="mt-4 mb-4"
         disabled={isVisible}
         onClick={(e) => {
           preventClickActions(e);

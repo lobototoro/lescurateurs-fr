@@ -38,11 +38,11 @@ export const PaginationSimple = ({
   return (
     <section className="w-full my-6">
       <div role="listbox" aria-label="pagination content" className="w-full ml-25 ">
-        <ol className="list-decimal list-inside">
+        <ol className="list-disc list-inside">
           {paginatedItems.map((item) => (
             <li
               key={item.id}
-              className="cursor-pointer"
+              className="cursor-pointer bg-black hover:bg-gray-700 focus:outline-4 focus:outline-offset-4 focus:outline-bg-gray-700 active:bg-bg-gray-300 p-2"
               onKeyDown={() => setSelectedArticle(item.articleId)}
               onClick={(e) => {
                 preventClickActions(e);
