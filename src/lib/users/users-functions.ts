@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 
 import { user } from "db/schema";
 import type { CustomResponseT } from "@/lib/articles/articles-functions";
+import type { UpdatedUserValues } from "@/routes/editor/_layout/manageuser";
 
 /**
  * Module for user database operations.
@@ -91,9 +92,19 @@ export const createUser = async (userObject: typeof user.$inferInsert): Promise<
  * }
  * ```
  */
-export const updateUser = async (id: string, userChanges: Partial<typeof user.$inferInsert>): Promise<CustomResponseT> => {
+export const updateUser = async (userChanges: UpdatedUserValues): Promise<CustomResponseT> => {
+  const { id, name, email, role, permissions } = userChanges;
+
   try {
-    await fixedDb.update(user).set(userChanges).where(eq(user.id, id));
+    await fixedDb
+      .update(user)
+      .set({
+        name,
+        email,
+        role,
+        permissions,
+      })
+      .where(eq(user.id, id));
 
     console.log("User updated successfully");
 

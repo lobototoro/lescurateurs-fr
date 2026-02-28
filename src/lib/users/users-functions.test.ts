@@ -79,10 +79,12 @@ describe("users-functions", () => {
 
   describe("updateUser", () => {
     it("should update a user and return success response", async () => {
-      const userId = "user_123";
-      const userChanges = {
+      const userChanges: { id: string; name: string; email: string; role: "contributor"; permissions: string[] } = {
+        id: "user_123",
         name: "Jane Doe",
-        updated_at: new Date(),
+        email: "jane@example.com",
+        role: "contributor",
+        permissions: ["read:articles"],
       };
 
       const mockUpdateReturn = {
@@ -92,7 +94,7 @@ describe("users-functions", () => {
 
       (fixedDb.update as ReturnType<typeof vi.fn>).mockReturnValue(mockUpdateReturn);
 
-      const result = await usersFunctions.updateUser(userId, userChanges);
+      const result = await usersFunctions.updateUser(userChanges);
 
       expect(result).toEqual({
         isSuccess: true,
@@ -102,9 +104,12 @@ describe("users-functions", () => {
     });
 
     it("should return error response when user update fails", async () => {
-      const userId = "user_123";
-      const userChanges = {
+      const userChanges: { id: string; name: string; email: string; role: "contributor"; permissions: string[] } = {
+        id: "user_123",
         name: "Jane Doe",
+        email: "jane@example.com",
+        role: "contributor",
+        permissions: ["read:articles"],
       };
 
       const mockUpdateReturn = {
@@ -116,7 +121,7 @@ describe("users-functions", () => {
 
       (fixedDb.update as ReturnType<typeof vi.fn>).mockReturnValue(mockUpdateReturn);
 
-      const result = await usersFunctions.updateUser(userId, userChanges);
+      const result = await usersFunctions.updateUser(userChanges);
 
       expect(result).toEqual({
         isSuccess: false,

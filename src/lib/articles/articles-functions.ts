@@ -230,7 +230,6 @@ export const createSlug = async (slugObject: typeof slugs.$inferInsert): Promise
  * ```
  */
 export const createArticle = async (articleObject: FormData): Promise<CustomResponseT> => {
-  console.log("articleObject in createArticle function ", articleObject);
   const article = {
     title: articleObject.get("title") as string,
     introduction: articleObject.get("introduction") as string,
@@ -443,7 +442,7 @@ export const deleteArticle = async (id: string, deleteFlag: boolean, updatedBy: 
   const transformedId = deleteFlag ? `markfordeletion|${id}` : testID(id);
   const updateAt = new Date().toISOString();
   try {
-    const deleteArticleResponse = await fixedDb
+    await fixedDb
       .update(articles)
       .set({
         // TODO: this should also update the corresponding slug's slug property to keep them in sync, but it would require a transaction to ensure atomicity
@@ -452,8 +451,6 @@ export const deleteArticle = async (id: string, deleteFlag: boolean, updatedBy: 
         updated_by: updatedBy,
       })
       .where(eq(articles.id, id));
-
-    console.log("article deletion response ", deleteArticleResponse);
 
     return {
       isSuccess: true,
@@ -491,7 +488,6 @@ export const deleteArticle = async (id: string, deleteFlag: boolean, updatedBy: 
  * ```
  */
 export const validateArticle = async (id: string, validation: boolean, updatedBy: string): Promise<CustomResponseT> => {
-  console.log("server side ", { id, validation });
   const udpatedAt = new Date().toISOString();
   try {
     const validatedSlugResponse = await fixedDb
@@ -500,8 +496,6 @@ export const validateArticle = async (id: string, validation: boolean, updatedBy
         validated: validation,
       })
       .where(eq(slugs.articleId, id));
-
-    console.log("slug validation response ", validatedSlugResponse);
 
     if (!validatedSlugResponse || validatedSlugResponse.count === 0) {
       return {
@@ -518,8 +512,6 @@ export const validateArticle = async (id: string, validation: boolean, updatedBy
         updated_by: updatedBy,
       })
       .where(eq(articles.id, id));
-
-    console.log("article validation response ", validateArticleResponse);
 
     if (!validateArticleResponse || validateArticleResponse.count === 0) {
       return {
@@ -586,7 +578,7 @@ export const shipArticle = async (id: string, shipValue: boolean, updatedBy: str
       };
     }
 
-    const shipArticleResponse = await fixedDb
+    await fixedDb
       .update(articles)
       .set({
         shipped: shipValue,
@@ -594,8 +586,6 @@ export const shipArticle = async (id: string, shipValue: boolean, updatedBy: str
         updated_by: updatedBy,
       })
       .where(eq(articles.id, id));
-
-    console.log("article shipping response ", shipArticleResponse);
 
     return {
       isSuccess: true,
