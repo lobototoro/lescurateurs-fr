@@ -3,7 +3,6 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
 import { fixedDb } from "../../db/drizzle";
 import { sendVerifEmail } from "@/lib/sendEmail/sendEmail";
-import { verify } from "node:crypto";
 
 const perms = JSON.stringify(["read:articles", "create:articles", "update:articles", "validate:articles"]);
 
