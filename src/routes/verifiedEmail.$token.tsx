@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { authClient } from "lib/auth/auth-client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const Route = createFileRoute("/verifiedEmail/$token")({
   component: RouteComponent,
@@ -25,12 +26,17 @@ async function verifEmail(tok: string): Promise<any | boolean> {
 
 function RouteComponent() {
   const [validated, setValidated] = useState(false);
-  const email = new URLSearchParams(window.location.search).get("email") as string;
-  if (!email) {
-    // Handle the error
-    toast.error("email absent, vous ne pourrez pas recevoir le mail pour changer de password.");
-  }
+  const [email, setEmail] = useState<string | null>(null);
   const { token } = Route.useParams();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const queryEmail = new URLSearchParams(window.location.search).get("email");
+    setEmail(queryEmail);
+    if (!queryEmail) {
+      toast.error("email absent, vous ne pourrez pas recevoir le mail pour changer de password.");
+    }
+  }, []);
 
   useEffect(() => {
     if (token) {
@@ -39,10 +45,12 @@ function RouteComponent() {
           setValidated(false);
         } else {
           setValidated(true);
+          if (!email) return;
           const { error } = await authClient.requestPasswordReset({
             email, // required
             redirectTo: "/",
           });
+
           if (error) {
             toast.error("Erreur à l'envoi du mail de reset de password.");
           }
@@ -55,18 +63,20 @@ function RouteComponent() {
   }, [token, email]);
 
   return (
-    <section>
-      {validated && (
-        <div>
-          <h1>Validé !</h1>
-          <p>Vous allez recevoir un mail pour changer de mot de passe</p>
-        </div>
-      )}
-      {!validated && (
-        <div>
-          <h1>Vous n'existez pas.</h1>
-        </div>
-      )}
+    <section className="flex min-h-screen items-center justify-center p-6">
+      <div className="w-full max-w-sm">
+        {validated && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Votre email est validé !</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Vous allez recevoir un mail pour changer de mot de passe</p>
+              <p>Vous pouvez fermer cette fenêtre.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </section>
   );
 }
