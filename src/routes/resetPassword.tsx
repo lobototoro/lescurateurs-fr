@@ -7,7 +7,7 @@ import * as z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { authClient } from "lib/auth/auth-client";
-import { useId } from "react";
+import { useEffect, useId, useState } from "react";
 
 const formSchema = z
   .object({
@@ -24,11 +24,16 @@ export const Route = createFileRoute("/resetPassword")({
 });
 
 function RouteComponent() {
-  const token = new URLSearchParams(window.location.search).get("token") as string;
-  if (!token) {
-    // Handle the error
-    toast.error("Token absent, vous ne pourrez pas changer de pasword.");
-  }
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const token = new URLSearchParams(window.location.search).get("token") as string;
+    setToken(token);
+    if (!token) {
+      toast.error("Token absent, vous ne pourrez pas changer de pasword.");
+    }
+  }, []);
 
   const form = useForm({
     defaultValues: {
@@ -39,6 +44,7 @@ function RouteComponent() {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
+      if (!token) return;
       await authClient.resetPassword(
         {
           newPassword: value.password,
