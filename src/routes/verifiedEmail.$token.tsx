@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, NavigateOptions, useParams } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { authClient } from "lib/auth/auth-client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -77,7 +77,7 @@ function RouteComponent() {
               <CardTitle>Erreur</CardTitle>
             </CardHeader>
             <CardContent>
-              <h1>Vous n'existez pas.</h1>
+              <p>Vous n'existez pas.</p>
             </CardContent>
           </Card>
         )}
