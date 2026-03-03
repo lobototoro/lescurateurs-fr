@@ -26,12 +26,17 @@ async function verifEmail(tok: string): Promise<any | boolean> {
 
 function RouteComponent() {
   const [validated, setValidated] = useState(false);
-  const email = new URLSearchParams(window.location.search).get("email") as string;
-  if (!email) {
-    // Handle the error
-    toast.error("email absent, vous ne pourrez pas recevoir le mail pour changer de password.");
-  }
+  const [email, setEmail] = useState<string | null>(null);
   const { token } = Route.useParams();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const queryEmail = new URLSearchParams(window.location.search).get("email");
+    setEmail(queryEmail);
+    if (!queryEmail) {
+      toast.error("email absent, vous ne pourrez pas recevoir le mail pour changer de password.");
+    }
+  }, []);
 
   useEffect(() => {
     if (token) {
@@ -40,7 +45,7 @@ function RouteComponent() {
           setValidated(false);
         } else {
           setValidated(true);
-
+          if (!email) return;
           const { error } = await authClient.requestPasswordReset({
             email, // required
             redirectTo: "/",
@@ -68,16 +73,6 @@ function RouteComponent() {
             <CardContent>
               <p>Vous allez recevoir un mail pour changer de mot de passe</p>
               <p>Vous pouvez fermer cette fenêtre.</p>
-            </CardContent>
-          </Card>
-        )}
-        {!validated && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Erreur</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Vous n'existez pas.</p>
             </CardContent>
           </Card>
         )}

@@ -40,8 +40,7 @@ export const auth = betterAuth({
           text: `Click the link to reset your password: ${resetUrl}`,
           html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #333;">Reset you password</h2>
-            <p style="color: #666;">Thank you for signing up! Please click the button below to reset your password:</p>
+            <h2 style="color: #333;">Reset your password</h2>
             <div style="text-align: center; margin: 30px 0;">
               <a href="${resetUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset password</a>
             </div>
