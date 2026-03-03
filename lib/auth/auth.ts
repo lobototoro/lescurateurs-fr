@@ -33,6 +33,18 @@ export const auth = betterAuth({
           to: user.email,
           subject: "Reset your password",
           text: `Click the link to reset your password: ${process.env.NODE_ENV === "production" ? "https://lescurateurs.fr/resetPassword?token=" + token : "http://localhost:3000/resetPassword?token=" + token}`,
+          html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #333;">Reset you password</h2>
+            <p style="color: #666;">Thank you for signing up! Please click the button below to reset your password:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NODE_ENV === "production" ? "https://lescurateurs.fr/resetPassword?token=" + token : "http://localhost:3000/resetPassword?token=" + token}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset password</a>
+            </div>
+            <p style="color: #666;">Or copy and paste this link into your browser:</p>
+            <p style="color: #999; word-break: break-all;">${process.env.NODE_ENV === "production" ? "https://lescurateurs.fr/resetPassword?token=" + token : "http://localhost:3000/resetPassword?token=" + token}</p>
+            <p style="color: #999; font-size: 12px; margin-top: 30px;">If you didn't request this reset, please ignore this email.</p>
+          </div>
+          `,
         }),
       );
     },

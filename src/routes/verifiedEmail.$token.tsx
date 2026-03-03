@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect, NavigateOptions, useParams } from "@tanstack/react-router";
 import { authClient } from "lib/auth/auth-client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const Route = createFileRoute("/verifiedEmail/$token")({
   component: RouteComponent,
@@ -39,10 +40,12 @@ function RouteComponent() {
           setValidated(false);
         } else {
           setValidated(true);
+
           const { error } = await authClient.requestPasswordReset({
             email, // required
             redirectTo: "/",
           });
+
           if (error) {
             toast.error("Erreur à l'envoi du mail de reset de password.");
           }
@@ -55,18 +58,30 @@ function RouteComponent() {
   }, [token, email]);
 
   return (
-    <section>
-      {validated && (
-        <div>
-          <h1>Validé !</h1>
-          <p>Vous allez recevoir un mail pour changer de mot de passe</p>
-        </div>
-      )}
-      {!validated && (
-        <div>
-          <h1>Vous n'existez pas.</h1>
-        </div>
-      )}
+    <section className="flex min-h-screen items-center justify-center p-6">
+      <div className="w-full max-w-sm">
+        {validated && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Votre email est validé !</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Vous allez recevoir un mail pour changer de mot de passe</p>
+              <p>Vous pouvez fermer cette fenêtre.</p>
+            </CardContent>
+          </Card>
+        )}
+        {!validated && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Erreur</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <h1>Vous n'existez pas.</h1>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </section>
   );
 }
