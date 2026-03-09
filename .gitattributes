@@ -1,0 +1,1 @@
+*.ts *.tsx *.js *.py *.go *.rs *.json *.yaml *.toml *.md merge=weave

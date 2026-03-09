@@ -51,6 +51,12 @@ export const deleteUserServer = createServerFn({ method: "POST" })
     return await deleteUser(data.id);
   });
 
+/*
+ * Manage USER: the page to manage created user via create user page
+ * here you can either update permissions or name or email
+ * and delete a user completely
+ * the structure is similar to manage user, based on the use of popover to display options for a user instance
+ */
 function RouteComponent() {
   const [usersList, setUsersList] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<UpdatedUserValues | null>(null);
