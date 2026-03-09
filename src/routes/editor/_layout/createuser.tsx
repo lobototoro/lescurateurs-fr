@@ -7,6 +7,12 @@ export const Route = createFileRoute("/editor/_layout/createuser")({
   component: RouteComponent,
 });
 
+/*
+ * Here we simply display the signup form
+ * after which a mail is sent to the new user for email validation
+ * and on valdiation success, another mail is sent to change the password
+ * All powered by better-auth login-flow.
+ */
 function RouteComponent() {
   const { data: session } = authClient.useSession();
 
