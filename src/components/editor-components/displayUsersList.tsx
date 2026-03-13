@@ -50,7 +50,7 @@ export const DisplayUsersList = ({
                   >
                     Update
                   </Button>
-                  {currentUser.name !== user.name && (
+                  {currentUser.id !== user.id && (
                     <Button
                       variant="outline"
                       size="sm"

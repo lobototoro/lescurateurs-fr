@@ -92,7 +92,7 @@ function RouteComponent() {
       try {
         const actionResponse = await func({ data: { id: userId } });
         if (actionResponse.isSuccess) {
-          performAfterActions();
+          await performAfterActions();
           toast.success("Utilisateur effacé !");
         }
       } catch (error) {
@@ -125,7 +125,7 @@ function RouteComponent() {
       try {
         const actionResponse = await func({ data: updates });
         if (actionResponse.isSuccess) {
-          performAfterActions();
+          await performAfterActions();
           toast.success("Update de l'utilisateur réussi !");
         }
       } catch (error) {
@@ -177,12 +177,14 @@ function RouteComponent() {
         {isVisible ? (
           <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={box} key="box">
             <Suspense fallback={<Spinner />}>
-              <DisplayUsersList
-                users={usersList}
-                selectedUserAction={setSelectedUser}
-                setDeletedUserAction={setToBeDeleted}
-                currentUser={session!.user}
-              />
+              {session?.user && (
+                <DisplayUsersList
+                  users={usersList}
+                  selectedUserAction={setSelectedUser}
+                  setDeletedUserAction={setToBeDeleted}
+                  currentUser={session.user}
+                />
+              )}
             </Suspense>
           </motion.div>
         ) : null}
