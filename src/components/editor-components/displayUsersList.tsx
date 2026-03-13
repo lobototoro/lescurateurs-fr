@@ -1,5 +1,5 @@
 import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitle, PopoverTrigger } from "@/components/ui/popover";
-import type { User } from "@/routes/editor/_layout/manageuser";
+import type { CurrentUserProps, User } from "@/routes/editor/_layout/manageuser";
 import { useId } from "react";
 import { ButtonGroup } from "../ui/button-group";
 import { Button } from "../ui/button";
@@ -9,10 +9,12 @@ export const DisplayUsersList = ({
   users,
   selectedUserAction,
   setDeletedUserAction,
+  currentUser,
 }: {
   users: User[];
   selectedUserAction: any;
   setDeletedUserAction: any;
+  currentUser: CurrentUserProps;
 }): React.ReactElement => {
   return (
     <ul id={`users-list-${useId()}`}>
@@ -48,16 +50,18 @@ export const DisplayUsersList = ({
                   >
                     Update
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(event) => {
-                      preventClickActions(event);
-                      setDeletedUserAction(user.id);
-                    }}
-                  >
-                    Delete
-                  </Button>
+                  {currentUser.name !== user.name && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(event) => {
+                        preventClickActions(event);
+                        setDeletedUserAction(user.id);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  )}
                 </ButtonGroup>
               </PopoverContent>
             </Popover>

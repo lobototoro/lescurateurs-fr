@@ -16,8 +16,18 @@ import { DisplayUsersList } from "@/components/editor-components/displayUsersLis
 import { box } from "@/routes/editor/_layout/updatearticles";
 import { Button } from "@/components/ui/button";
 import { preventClickActions } from "@/lib/utils/utils";
+import { authClient } from "lib/auth/auth-client";
 
 export type User = typeof user.$inferSelect;
+export type CurrentUserProps = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  email: string;
+  emailVerified: boolean;
+  name: string;
+  image?: string | null | undefined;
+};
 export type UpdatedUserValues = {
   name: string;
   id: string;
@@ -47,7 +57,6 @@ export const updateUserServer = createServerFn({
 export const deleteUserServer = createServerFn({ method: "POST" })
   .inputValidator((data: { id: string }) => data)
   .handler(async ({ data }) => {
-    console.log("in delete user server ", data.id);
     return await deleteUser(data.id);
   });
 
@@ -58,6 +67,7 @@ export const deleteUserServer = createServerFn({ method: "POST" })
  * the structure is similar to manage user, based on the use of popover to display options for a user instance
  */
 function RouteComponent() {
+  const { data: session } = authClient.useSession();
   const [usersList, setUsersList] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<UpdatedUserValues | null>(null);
   const [toBeDeleted, setToBeDeleted] = useState<string | null>(null);
@@ -70,21 +80,27 @@ function RouteComponent() {
     }
   }, []);
 
+  const performAfterActions = useCallback(async () => {
+    await getUsersList();
+    setSelectedUser(null);
+    setToBeDeleted(null);
+    setIsVisible(true);
+  }, [getUsersList]);
+
   const handleDeleteResult = useCallback(
     async (func: any, userId: string): Promise<void> => {
       try {
         const actionResponse = await func({ data: { id: userId } });
         if (actionResponse.isSuccess) {
+          performAfterActions();
           toast.success("Utilisateur effacé !");
-          setIsVisible(true);
-          getUsersList();
         }
       } catch (error) {
         console.error("Deleting user failed", error);
         toast.error("Echec de l'effacement");
       }
     },
-    [getUsersList],
+    [performAfterActions],
   );
 
   const handleDeleteUser = useCallback(
@@ -109,17 +125,15 @@ function RouteComponent() {
       try {
         const actionResponse = await func({ data: updates });
         if (actionResponse.isSuccess) {
-          toast.success("Update de l'utilisateur réussié !");
-          setSelectedUser(null);
-          setIsVisible(true);
-          getUsersList();
+          performAfterActions();
+          toast.success("Update de l'utilisateur réussi !");
         }
       } catch (error) {
         console.error("Update de l'utilisateur a échouée", error);
         toast.error("Update de l'utilisateur a échouée");
       }
     },
-    [getUsersList],
+    [performAfterActions],
   );
 
   const handleUpdateUser = useCallback(
@@ -163,7 +177,12 @@ function RouteComponent() {
         {isVisible ? (
           <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={box} key="box">
             <Suspense fallback={<Spinner />}>
-              <DisplayUsersList users={usersList} selectedUserAction={setSelectedUser} setDeletedUserAction={setToBeDeleted} />
+              <DisplayUsersList
+                users={usersList}
+                selectedUserAction={setSelectedUser}
+                setDeletedUserAction={setToBeDeleted}
+                currentUser={session!.user}
+              />
             </Suspense>
           </motion.div>
         ) : null}
