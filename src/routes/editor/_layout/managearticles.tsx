@@ -87,7 +87,7 @@ function RouteComponent() {
       case "Dé-valider": {
         // call the function to invalidate the article
         choice = {
-          message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
+          message: `Êtes-vous sûr de vouloir dé-valider l'article ${articleId} ?`,
           articleId,
           argument: true,
           action: async (articleId: string, _choice: boolean) => {
@@ -121,7 +121,7 @@ function RouteComponent() {
       case "Mettre offline": {
         // call the function to take the article offline
         choice = {
-          message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
+          message: `Êtes-vous sûr de vouloir mettre offline l'article ${articleId} ?`,
           articleId,
           argument: true,
           action: async (articleId: string, _choice: boolean) => {
@@ -138,7 +138,7 @@ function RouteComponent() {
       case "Déployer": {
         // call the function to deploy the article
         choice = {
-          message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
+          message: `Êtes-vous sûr de vouloir déployer l'article ${articleId} ?`,
           articleId,
           argument: true,
           action: async (articleId: string, _choice: boolean) => {
@@ -155,7 +155,7 @@ function RouteComponent() {
       case "Supprimer": {
         // call the function to delete the article
         choice = {
-          message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
+          message: `Êtes-vous sûr de vouloir supprimer l'article ${articleId} ?`,
           articleId,
           argument: true,
           action: async (articleId: string, _choice: boolean) => {
@@ -172,7 +172,7 @@ function RouteComponent() {
       case "Restaurer": {
         // call the function to restore the article
         choice = {
-          message: `Êtes-vous sûr de vouloir valider l'article ${articleId} ?`,
+          message: `Êtes-vous sûr de vouloir restaurer l'article ${articleId} ?`,
           articleId,
           argument: true,
           action: async (articleId: string, _choice: boolean) => {
