@@ -5,6 +5,7 @@ import { slugsTermSearch } from "@/lib/search/search-functions";
 import { useForm } from "@tanstack/react-form";
 import { createServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { useEffect, type Dispatch, type SetStateAction } from "react";
 
 const slugsSearchServerfn = createServerFn({ method: "POST" })
   .inputValidator((data: { searchTerm: string }) => {
@@ -17,7 +18,15 @@ const slugsSearchServerfn = createServerFn({ method: "POST" })
     return slugsTermSearch(data.searchTerm);
   });
 
-export const SlugsSearchComponent = ({ setArticlesList }: { setArticlesList: (value: any[]) => void }) => {
+export const SlugsSearchComponent = ({
+  setArticlesList,
+  resetFromParent,
+  setResetFromParent,
+}: {
+  setArticlesList: (value: any[]) => void;
+  resetFromParent?: boolean;
+  setResetFromParent?: Dispatch<SetStateAction<boolean>>;
+}) => {
   const form = useForm({
     defaultValues: {
       searchTerm: "",
@@ -34,14 +43,22 @@ export const SlugsSearchComponent = ({ setArticlesList }: { setArticlesList: (va
         if (Array.isArray(articlesList) && articlesList.length > 0) {
           setArticlesList(articlesList);
         } else {
+          setArticlesList([]);
           toast.error("Aucun résultat trouvé pour ce terme de recherche.");
         }
       } catch (error) {
         console.error("Error during search:", error);
-        toast.error("Erreur lors de la recherche. ${error instanceof Error ? error.message : 'Unknown error'}");
+        toast.error("Erreur lors de la recherche. Veuillez réessayer.");
       }
     },
   });
+
+  useEffect(() => {
+    if (resetFromParent) {
+      form.reset();
+      setResetFromParent?.(false);
+    }
+  }, [resetFromParent, setResetFromParent, form.reset]);
 
   return (
     <section>
