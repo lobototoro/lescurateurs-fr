@@ -43,11 +43,12 @@ export const SlugsSearchComponent = ({
         if (Array.isArray(articlesList) && articlesList.length > 0) {
           setArticlesList(articlesList);
         } else {
+          setArticlesList([]);
           toast.error("Aucun résultat trouvé pour ce terme de recherche.");
         }
       } catch (error) {
         console.error("Error during search:", error);
-        toast.error("Erreur lors de la recherche. ${error instanceof Error ? error.message : 'Unknown error'}");
+        toast.error(`Erreur lors de la recherche : ${error instanceof Error ? error.message : "Erreur inconnue"}`);
       }
     },
   });
