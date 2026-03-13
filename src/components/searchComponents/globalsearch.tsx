@@ -5,7 +5,7 @@ import { slugsTermSearch } from "@/lib/search/search-functions";
 import { useForm } from "@tanstack/react-form";
 import { createServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, type Dispatch, type SetStateAction } from "react";
 
 const slugsSearchServerfn = createServerFn({ method: "POST" })
   .inputValidator((data: { searchTerm: string }) => {
@@ -25,7 +25,7 @@ export const SlugsSearchComponent = ({
 }: {
   setArticlesList: (value: any[]) => void;
   resetFromParent?: boolean;
-  setResetFromParent?: React.Dispatch<React.SetStateAction<boolean>>;
+  setResetFromParent?: Dispatch<SetStateAction<boolean>>;
 }) => {
   const form = useForm({
     defaultValues: {
@@ -48,7 +48,7 @@ export const SlugsSearchComponent = ({
         }
       } catch (error) {
         console.error("Error during search:", error);
-        toast.error(`Erreur lors de la recherche : ${error instanceof Error ? error.message : "Erreur inconnue"}`);
+        toast.error("Erreur lors de la recherche. Veuillez réessayer.");
       }
     },
   });
