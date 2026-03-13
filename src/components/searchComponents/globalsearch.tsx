@@ -5,6 +5,7 @@ import { slugsTermSearch } from "@/lib/search/search-functions";
 import { useForm } from "@tanstack/react-form";
 import { createServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 const slugsSearchServerfn = createServerFn({ method: "POST" })
   .inputValidator((data: { searchTerm: string }) => {
@@ -17,7 +18,15 @@ const slugsSearchServerfn = createServerFn({ method: "POST" })
     return slugsTermSearch(data.searchTerm);
   });
 
-export const SlugsSearchComponent = ({ setArticlesList }: { setArticlesList: (value: any[]) => void }) => {
+export const SlugsSearchComponent = ({
+  setArticlesList,
+  resetFromParent,
+  setResetFromParent,
+}: {
+  setArticlesList: (value: any[]) => void;
+  resetFromParent?: boolean;
+  setResetFromParent?: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const form = useForm({
     defaultValues: {
       searchTerm: "",
@@ -42,6 +51,13 @@ export const SlugsSearchComponent = ({ setArticlesList }: { setArticlesList: (va
       }
     },
   });
+
+  useEffect(() => {
+    if (resetFromParent) {
+      form.reset();
+      setResetFromParent?.(false);
+    }
+  }, [resetFromParent, setResetFromParent, form.reset]);
 
   return (
     <section>
