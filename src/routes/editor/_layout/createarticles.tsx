@@ -45,14 +45,14 @@ export const formSchema = z.object({
     .string()
     .min(10, { error: "Introduction must be at least 10 characters" })
     .max(500, { error: "Introduction must be at most 500 characters" }),
-  main: z.string().min(200, "Main content must be at least 200 characters"),
-  main_audio_url: z.url("You must enter a real url"),
-  url_to_main_illustration: z.url("You must enter a real url"),
+  main: z.string().min(200, { error: "Main content must be at least 200 characters" }),
+  main_audio_url: z.url({ error: "You must enter a real url" }),
+  url_to_main_illustration: z.url({ error: "You must enter a real url" }),
   urls: z
     .array(
       z.object({
         type: z.enum([UrlsTypes.WEBSITE, UrlsTypes.VIDEOS, UrlsTypes.AUDIO, UrlsTypes.SOCIAL, UrlsTypes.IMAGE]),
-        url: z.url("You must enter a real url"),
+        url: z.url({ error: "You must enter a real url" }),
         credits: z.string().max(100, { error: "Credits must be at most 100 characters" }).optional(),
       }),
     )

@@ -216,11 +216,11 @@ export const FormMarkup = ({
           <div className="flex justify-between mt-6">
             <form.Subscribe
               selector={(state) => [state.isDirty, state.isSubmitting]}
-              children={([_isDirty, isSubmitting]) => (
+              children={([isDirty, isSubmitting]) => (
                 <Button
                   type="button"
                   variant="destructive"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !isDirty}
                   onClick={(e) => {
                     preventClickActions(e);
                     form.reset();
