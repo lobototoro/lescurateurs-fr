@@ -122,7 +122,7 @@ function RouteComponent() {
           </Button>
           <h2 className="font-black text-2xl">Modifier un article</h2>
           <p className="mb-6">
-            Modifier au moins <strong>un champ</strong> pour avant de soumettre ce formulaire
+            Modifier au moins <strong>un champ</strong> avant de soumettre ce formulaire
           </p>
           <FormMarkup
             defaultformValues={defaultformValues}
@@ -162,8 +162,10 @@ function RouteComponent() {
                   setSelectedArticleId(null);
                   setArticleData(null);
                   setIsVisible(true);
+                  toast.success("Article mis à jour avec succès !");
+                } else {
+                  toast.error(updatearticleResponse.message || "Erreur lors de la mise à jour de l'article.");
                 }
-                toast.success("Article mis à jour avec succès !");
               } catch (error) {
                 console.error("Error updating article:", error);
                 toast.error("Erreur lors de la mise à jour de l'article. Veuillez réessayer.");

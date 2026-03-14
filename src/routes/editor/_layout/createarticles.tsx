@@ -69,7 +69,7 @@ function RouteComponent() {
   return (
     <section className="w-3/4 mx-auto">
       <h2 className="font-black text-2xl">Créer un nouvel article</h2>
-      <p className="mb-6">Remplissez tous les champs pour avant de soumettre ce formulaire</p>
+      <p className="mb-6">Remplissez tous les champs avant de soumettre ce formulaire</p>
       <FormMarkup
         defaultformValues={formDefaultValues}
         formValidation={formSchema}
