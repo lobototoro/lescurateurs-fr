@@ -1,4 +1,4 @@
-import { FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field";
+import { FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -60,8 +60,6 @@ export const FormMarkup = ({
     >
       <FieldGroup>
         <FieldSet>
-          <FieldLegend>Créer un nouvel article</FieldLegend>
-          <FieldDescription>Remplissez tous les champs pour avant de soumettre ce formulaire</FieldDescription>
           <FieldSeparator />
 
           <form.Field
@@ -216,15 +214,22 @@ export const FormMarkup = ({
 
           <FieldSeparator />
           <div className="flex justify-between mt-6">
-            <Button
-              variant="destructive"
-              onClick={(e) => {
-                preventClickActions(e);
-                form.reset();
-              }}
-            >
-              Effacez
-            </Button>
+            <form.Subscribe
+              selector={(state) => [state.isDirty, state.isSubmitting]}
+              children={([isDirty, isSubmitting]) => (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  disabled={isSubmitting || !isDirty}
+                  onClick={(e) => {
+                    preventClickActions(e);
+                    form.reset();
+                  }}
+                >
+                  {isSubmitting ? "..." : "Effacez"}
+                </Button>
+              )}
+            />
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting]}
               children={([canSubmit, isSubmitting]) => (
