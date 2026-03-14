@@ -129,11 +129,15 @@ function RouteComponent() {
             formValidation={formUpdateSchema}
             submitAction={async (values) => {
               //check for changes in values compared to articleData, if no changes, show a toast and return
-              const hasChanges = Object.keys(values).some((key) => {
+              const hasChanges = (Object.keys(values) as Array<keyof FormValues>).some((key) => {
                 if (key === "urls") {
-                  return JSON.stringify(values[key]) !== JSON.stringify(articleData[key as keyof typeof articleData]);
+                  const nextUrls = values.urls ?? [];
+                  const currentUrls = (articleData.urls as URLSsignature | null | undefined) ?? [];
+                  return JSON.stringify(nextUrls) !== JSON.stringify(currentUrls);
                 }
-                return values[key] !== articleData[key as keyof typeof articleData];
+                const nextValue = values[key] ?? "";
+                const currentValue = (articleData[key as keyof typeof articleData] as string | null | undefined) ?? "";
+                return nextValue !== currentValue;
               });
 
               if (!hasChanges) {
