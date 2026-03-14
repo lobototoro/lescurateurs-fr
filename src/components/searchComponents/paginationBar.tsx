@@ -28,7 +28,6 @@ export const PaginationSimple = ({
 
   useEffect(() => {
     if (selectedArticle && selectedArticle !== null) {
-      console.warn("in useFX ", selectedArticle);
       selectedID(selectedArticle);
     }
     if (triggerHide) {
@@ -47,7 +46,6 @@ export const PaginationSimple = ({
               onKeyDown={() => setSelectedArticle(item.articleId)}
               onClick={(e) => {
                 preventClickActions(e);
-                console.info("click on article ", item.slug);
                 setSelectedArticle(item.articleId);
                 setTriggerHide(true);
               }}

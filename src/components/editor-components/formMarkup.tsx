@@ -1,4 +1,4 @@
-import { FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field";
+import { FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -214,15 +214,22 @@ export const FormMarkup = ({
 
           <FieldSeparator />
           <div className="flex justify-between mt-6">
-            <Button
-              variant="destructive"
-              onClick={(e) => {
-                preventClickActions(e);
-                form.reset();
-              }}
-            >
-              Effacez
-            </Button>
+            <form.Subscribe
+              selector={(state) => [state.isDirty, state.isSubmitting]}
+              children={([_isDirty, isSubmitting]) => (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  disabled={isSubmitting}
+                  onClick={(e) => {
+                    preventClickActions(e);
+                    form.reset();
+                  }}
+                >
+                  {isSubmitting ? "..." : "Effacez"}
+                </Button>
+              )}
+            />
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting]}
               children={([canSubmit, isSubmitting]) => (

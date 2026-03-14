@@ -51,7 +51,6 @@ function RouteComponent() {
   const [articleData, setArticleData] = React.useState<typeof articles.$inferSelect | null>(null);
 
   const getArticleData = useCallback(async (id: string) => {
-    console.info("in get article ", id);
     try {
       const articleData = await fetchArticleServerFn({ data: { id } });
       setArticleData(articleData);
@@ -80,10 +79,8 @@ function RouteComponent() {
 
   useEffect(() => {
     if (selectedArticleId) {
-      console.info("in update article useFX ", selectedArticleId);
       getArticleData(selectedArticleId);
       setArticlesList([]);
-      // setIsVisible(false);
     }
   }, [selectedArticleId, getArticleData]);
 
