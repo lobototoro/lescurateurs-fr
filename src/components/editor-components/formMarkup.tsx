@@ -60,8 +60,6 @@ export const FormMarkup = ({
     >
       <FieldGroup>
         <FieldSet>
-          <FieldLegend>Créer un nouvel article</FieldLegend>
-          <FieldDescription>Remplissez tous les champs pour avant de soumettre ce formulaire</FieldDescription>
           <FieldSeparator />
 
           <form.Field

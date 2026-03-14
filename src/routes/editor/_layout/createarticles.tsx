@@ -41,7 +41,10 @@ export const formDefaultValues: FormValues = {
 
 export const formSchema = z.object({
   title: z.string().min(10, { error: "Title must be at least 10 characters" }).max(100, { error: "Title must be at most 100 characters" }),
-  introduction: z.string().min(10, { error: "Introduction must be at least 10 characters" }).max(500, { error: "Introduction must be at most 500 characters" }),
+  introduction: z
+    .string()
+    .min(10, { error: "Introduction must be at least 10 characters" })
+    .max(500, { error: "Introduction must be at most 500 characters" }),
   main: z.string().min(200, "Main content must be at least 200 characters"),
   main_audio_url: z.url("You must enter a real url"),
   url_to_main_illustration: z.url("You must enter a real url"),
@@ -65,6 +68,8 @@ function RouteComponent() {
 
   return (
     <section className="w-3/4 mx-auto">
+      <h2 className="font-black text-2xl">Créer un nouvel article</h2>
+      <p className="mb-6">Remplissez tous les champs pour avant de soumettre ce formulaire</p>
       <FormMarkup
         defaultformValues={formDefaultValues}
         formValidation={formSchema}

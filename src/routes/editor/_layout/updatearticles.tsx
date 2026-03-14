@@ -105,66 +105,72 @@ function RouteComponent() {
           </motion.div>
         ) : null}
       </AnimatePresence>
-      <Button
-        variant={isVisible ? "outline" : "default"}
-        className="mt-4 mb-4"
-        disabled={isVisible}
-        onClick={(e) => {
-          preventClickActions(e);
-          setArticleData(null);
-          setSelectedArticleId(null);
-          setArticlesList([]);
-          setIsVisible((prev) => !prev);
-        }}
-      >
-        Revenir à la recherche
-      </Button>
       {articleData && (
-        <FormMarkup
-          defaultformValues={defaultformValues}
-          formValidation={formUpdateSchema}
-          submitAction={async (values) => {
-            //check for changes in values compared to articleData, if no changes, show a toast and return
-            const hasChanges = Object.keys(values).some((key) => {
-              if (key === "urls") {
-                return JSON.stringify(values[key]) !== JSON.stringify(articleData[key as keyof typeof articleData]);
+        <div>
+          <Button
+            variant={isVisible ? "outline" : "default"}
+            className="mt-4 mb-9"
+            disabled={isVisible}
+            onClick={(e) => {
+              preventClickActions(e);
+              setArticleData(null);
+              setSelectedArticleId(null);
+              setArticlesList([]);
+              setIsVisible((prev) => !prev);
+            }}
+          >
+            Revenir à la recherche
+          </Button>
+          <h2 className="font-black text-2xl">Modifier un article</h2>
+          <p className="mb-6">
+            Modifier au moins <strong>un champ</strong> pour avant de soumettre ce formulaire
+          </p>
+          <FormMarkup
+            defaultformValues={defaultformValues}
+            formValidation={formUpdateSchema}
+            submitAction={async (values) => {
+              //check for changes in values compared to articleData, if no changes, show a toast and return
+              const hasChanges = Object.keys(values).some((key) => {
+                if (key === "urls") {
+                  return JSON.stringify(values[key]) !== JSON.stringify(articleData[key as keyof typeof articleData]);
+                }
+                return values[key] !== articleData[key as keyof typeof articleData];
+              });
+
+              if (!hasChanges) {
+                toast.error("Aucun changement détecté. Veuillez modifier au moins un champ avant de soumettre.");
+                return;
               }
-              return values[key] !== articleData[key as keyof typeof articleData];
-            });
 
-            if (!hasChanges) {
-              toast.error("Aucun changement détecté. Veuillez modifier au moins un champ avant de soumettre.");
-              return;
-            }
-
-            const formData = new FormData();
-            formData.append("id", articleData.id);
-            formData.append("title", values.title);
-            formData.append("introduction", values.introduction);
-            formData.append("main", values.main);
-            formData.append("main_audio_url", values.main_audio_url);
-            formData.append("url_to_main_illustration", values.url_to_main_illustration);
-            formData.append("urls", JSON.stringify(values.urls));
-            formData.append("updated_by", userSessionInfos.name);
-            formData.append("updated_at", new Date().toISOString());
-            // we only add slug to the update stack if there's a change in title
-            if (articleData.title !== values.title) {
-              formData.append("slug", slugify(values.title, { lower: true, remove: /[*+~.()'"!:@]/g }));
-            }
-
-            try {
-              const updatearticleResponse = await updateArticleServerFn({ data: formData });
-              if (updatearticleResponse.isSuccess) {
-                setIsVisible(true);
-                setArticleData(null);
+              const formData = new FormData();
+              formData.append("id", articleData.id);
+              formData.append("title", values.title);
+              formData.append("introduction", values.introduction);
+              formData.append("main", values.main);
+              formData.append("main_audio_url", values.main_audio_url);
+              formData.append("url_to_main_illustration", values.url_to_main_illustration);
+              formData.append("urls", JSON.stringify(values.urls));
+              formData.append("updated_by", userSessionInfos.name);
+              formData.append("updated_at", new Date().toISOString());
+              // we only add slug to the update stack if there's a change in title
+              if (articleData.title !== values.title) {
+                formData.append("slug", slugify(values.title, { lower: true, remove: /[*+~.()'"!:@]/g }));
               }
-              toast.success("Article mis à jour avec succès !");
-            } catch (error) {
-              console.error("Error updating article:", error);
-              toast.error("Erreur lors de la mise à jour de l'article. Veuillez réessayer.");
-            }
-          }}
-        />
+
+              try {
+                const updatearticleResponse = await updateArticleServerFn({ data: formData });
+                if (updatearticleResponse.isSuccess) {
+                  setIsVisible(true);
+                  setArticleData(null);
+                }
+                toast.success("Article mis à jour avec succès !");
+              } catch (error) {
+                console.error("Error updating article:", error);
+                toast.error("Erreur lors de la mise à jour de l'article. Veuillez réessayer.");
+              }
+            }}
+          />
+        </div>
       )}
     </section>
   );
