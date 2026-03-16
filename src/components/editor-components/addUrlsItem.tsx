@@ -102,7 +102,7 @@ export function UrlObjectItem({
             );
           }}
         >
-          Ajoutez
+          {toBeUpdated ? "Ajoutez ?" : "ajouté"}
         </Button>
       </div>
     </div>
