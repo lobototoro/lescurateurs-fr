@@ -48,6 +48,10 @@ describe("DisplayUsersList", () => {
     email: "current@example.com",
     role: "admin",
     permissions: ["read:articles", "write:articles"],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    emailVerified: true,
+    image: "",
   };
 
   const mockUsers: User[] = [
@@ -60,6 +64,7 @@ describe("DisplayUsersList", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       emailVerified: true,
+      image: "",
     },
     {
       id: "user-2",
@@ -70,6 +75,7 @@ describe("DisplayUsersList", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       emailVerified: true,
+      image: "",
     },
     {
       id: "user-3",
@@ -80,6 +86,7 @@ describe("DisplayUsersList", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       emailVerified: false,
+      image: "",
     },
   ];
 
@@ -226,7 +233,7 @@ describe("DisplayUsersList", () => {
       );
 
       const deleteButtons = screen.getAllByText("Delete");
-      const deleteButton = deleteButtons.find((btn, index) => {
+      const deleteButton = deleteButtons.find((btn, _index) => {
         const userElement = screen.getByText("User Two").closest("li");
         return userElement?.contains(btn);
       });
