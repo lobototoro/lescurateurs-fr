@@ -36,7 +36,7 @@ export default function HeaderMenu({ role, permissions, logoutAction }: { role: 
     return (
       <li key={`menu-items-${index.toString()}`}>
         <Button
-          className="navbar-item text-sm font-light"
+          className="navbar-item text-sm font-light cursor-pointer"
           variant="outline"
           onClick={() =>
             navigate({

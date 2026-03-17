@@ -230,10 +230,12 @@ function RouteComponent() {
   return (
     <section className="w-3/4 mx-auto">
       <SlugsSearchComponent setArticlesList={setArticlesList} resetFromParent={resetForm} setResetFromParent={setResetForm} />
-      {articlesList.length > 0 && (
+      {articlesList.length > 0 ? (
         <PaginationWithOptions itemsList={articlesList} selectedID={setSelectedArticleId} defaultPage={1} defaultLimit={5} isPending={isPending}>
           <FillPopover articleData={selectedArticle} handleGroupButtonsActions={handleGroupButtonsActions} />
         </PaginationWithOptions>
+      ) : (
+        <p>Aucun résultat trouvé. Essayez un autre terme de recherche.</p>
       )}
     </section>
   );
