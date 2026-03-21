@@ -18,6 +18,11 @@
 - `pnpm check` - Run Biome checks (format, lint, and import sorting)
 - `pnpm format` - Format code with Biome
 
+## Git Operations
+- **IMPORTANT**: NEVER commit or push changes without explicit user authorization
+- Always ask for confirmation before running `git commit` or `git push`
+- Do not create commits or push to remote unless the user explicitly requests it
+
 ## Key Paths
 - `src/` - Application source code
 - `db/` - Database schema and migrations
