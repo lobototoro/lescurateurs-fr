@@ -23,6 +23,11 @@
 - Always ask for confirmation before running `git commit` or `git push`
 - Do not create commits or push to remote unless the user explicitly requests it
 
+## Testing Requirements
+- **IMPORTANT**: Unit tests must achieve 80-100% line coverage before committing
+- Run `pnpm test` to check coverage report
+- If coverage is below 80%, add missing tests before committing
+
 ## Key Paths
 - `src/` - Application source code
 - `db/` - Database schema and migrations
