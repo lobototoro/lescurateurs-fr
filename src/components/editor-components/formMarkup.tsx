@@ -72,6 +72,13 @@ export const FormMarkup = ({
                 }
                 return undefined;
               },
+              onBlur: ({ value }) => {
+                const result = (formValidation.shape as any).title.safeParse(value);
+                if (!result.success) {
+                  return result.error.issues.map((issue: any) => issue.message);
+                }
+                return undefined;
+              },
             }}
             children={(field) => (
               <>
@@ -83,6 +90,7 @@ export const FormMarkup = ({
                   onChange={(e) => {
                     field.handleChange(e.target.value);
                   }}
+                  onBlur={field.handleBlur}
                 />
                 <FieldInfo field={field} />
               </>
@@ -93,6 +101,13 @@ export const FormMarkup = ({
             name="introduction"
             validators={{
               onChange: ({ value }) => {
+                const result = (formValidation.shape as any).introduction.safeParse(value);
+                if (!result.success) {
+                  return result.error.issues.map((issue: any) => issue.message);
+                }
+                return undefined;
+              },
+              onBlur: ({ value }) => {
                 const result = (formValidation.shape as any).introduction.safeParse(value);
                 if (!result.success) {
                   return result.error.issues.map((issue: any) => issue.message);
@@ -111,6 +126,7 @@ export const FormMarkup = ({
                   onChange={(e) => {
                     field.handleChange(e.target.value);
                   }}
+                  onBlur={field.handleBlur}
                 />
                 <FieldInfo field={field} />
               </>
@@ -121,6 +137,13 @@ export const FormMarkup = ({
             name="main"
             validators={{
               onChange: ({ value }) => {
+                const result = (formValidation.shape as any).main.safeParse(value);
+                if (!result.success) {
+                  return result.error.issues.map((issue: any) => issue.message);
+                }
+                return undefined;
+              },
+              onBlur: ({ value }) => {
                 const result = (formValidation.shape as any).main.safeParse(value);
                 if (!result.success) {
                   return result.error.issues.map((issue: any) => issue.message);
@@ -155,6 +178,13 @@ export const FormMarkup = ({
                 }
                 return undefined;
               },
+              onBlur: ({ value }) => {
+                const result = (formValidation.shape as any).main_audio_url.safeParse(value);
+                if (!result.success) {
+                  return result.error.issues.map((issue: any) => issue.message);
+                }
+                return undefined;
+              },
             }}
             children={(field) => (
               <>
@@ -167,6 +197,7 @@ export const FormMarkup = ({
                   onChange={(e) => {
                     field.handleChange(e.target.value);
                   }}
+                  onBlur={field.handleBlur}
                 />
                 <FieldInfo field={field} />
               </>
@@ -177,6 +208,13 @@ export const FormMarkup = ({
             name="url_to_main_illustration"
             validators={{
               onChange: ({ value }) => {
+                const result = (formValidation.shape as any).url_to_main_illustration.safeParse(value);
+                if (!result.success) {
+                  return result.error.issues.map((issue: any) => issue.message);
+                }
+                return undefined;
+              },
+              onBlur: ({ value }) => {
                 const result = (formValidation.shape as any).url_to_main_illustration.safeParse(value);
                 if (!result.success) {
                   return result.error.issues.map((issue: any) => issue.message);
@@ -195,6 +233,7 @@ export const FormMarkup = ({
                   onChange={(e) => {
                     field.handleChange(e.target.value);
                   }}
+                  onBlur={field.handleBlur}
                 />
                 <FieldInfo field={field} />
               </>

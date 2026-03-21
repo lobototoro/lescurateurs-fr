@@ -1,6 +1,6 @@
 import type { JSX } from "react";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { preventClickActions } from "@/lib/utils/utils";
 
 /*
@@ -22,7 +22,10 @@ export const FillPopover = ({
 
   const validationLabel = articleData?.validated ? "Dé-valider" : "Valider";
   const shipLabel = articleData?.shipped ? "Mettre offline" : "Déployer";
-  const deleteLabel = articleData?.id.search(/^markfordeletion\|/) !== -1 ? "Restaurer" : "Supprimer";
+  const deleteLabel =
+    articleData?.id && articleData.id.search(/^markfordeletion\|/) !== -1
+      ? "Restaurer"
+      : "Supprimer";
 
   return (
     <ButtonGroup orientation="horizontal">
