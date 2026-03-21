@@ -239,18 +239,19 @@ describe("ModalComponent", () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it("Should handle action when action is provided but not called", async () => {
+    it("Should call action and close modal when choice is defined", async () => {
       const { ModalComponent } = await import("@/components/modal/modalComponent");
 
       const { useModal } = await import("shadcn-modal-manager");
       const modal = useModal();
+      const actionMock = vi.fn();
 
       render(
         <ModalComponent
           message="Test with choice"
           articleId="123"
           choice={false}
-          action={vi.fn()}
+          action={actionMock}
           modalId="test-modal"
         />
       );
@@ -258,7 +259,10 @@ describe("ModalComponent", () => {
       const submitButton = screen.getByRole("button", { name: "Validez" });
       await user.click(submitButton);
 
-      expect(modal.close).toHaveBeenCalledWith({ saved: true });
+      await waitFor(() => {
+        expect(actionMock).toHaveBeenCalledWith("123", false);
+        expect(modal.close).toHaveBeenCalledWith({ saved: true });
+      });
     });
   });
 });
