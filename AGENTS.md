@@ -1,0 +1,24 @@
+# Project Configuration
+
+## Tech Stack
+- **Framework**: TanStack Start (React Router SSR)
+- **UI**: React 19, Radix UI, Tailwind CSS v4, shadcn
+- **Styling**: Tailwind CSS v4, CSS Variables, Framer Motion
+- **Database**: PostgreSQL with Drizzle ORM
+- **Auth**: Better Auth
+- **Testing**: Vitest
+- **Linting**: Biome
+- **Package Manager**: pnpm
+
+## Scripts
+- `pnpm dev` - Start development server
+- `pnpm build` - Build for production
+- `pnpm test` - Run tests with coverage
+- `pnpm lint` - Run Biome linting
+- `pnpm check` - Run Biome type checking
+- `pnpm format` - Format code with Biome
+
+## Key Paths
+- `src/` - Application source code
+- `db/` - Database schema and migrations
+- `lib/` - Utility functions and helpers
