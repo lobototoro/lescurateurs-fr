@@ -23,7 +23,7 @@ export const FillPopover = ({
   const validationLabel = articleData?.validated ? "Dé-valider" : "Valider";
   const shipLabel = articleData?.shipped ? "Mettre offline" : "Déployer";
   const deleteLabel =
-    articleData?.id?.search(/^markfordeletion\|/) !== -1
+    articleData?.id && articleData.id.search(/^markfordeletion\|/) !== -1
       ? "Restaurer"
       : "Supprimer";
 
