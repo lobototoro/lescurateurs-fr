@@ -15,7 +15,7 @@
 - `pnpm build` - Build for production
 - `pnpm test` - Run tests with coverage
 - `pnpm lint` - Run Biome linting
-- `pnpm check` - Run Biome type checking
+- `pnpm check` - Run Biome checks (format, lint, and import sorting)
 - `pnpm format` - Format code with Biome
 
 ## Key Paths

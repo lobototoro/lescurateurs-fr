@@ -51,6 +51,7 @@ vi.mock("@/components/ui/textarea", () => ({
 
 let selectedValue = "contributor";
 const onValueChangeCallbacks: ((value: string) => void)[] = [];
+const onValueChangeCalls: string[] = [];
 
 vi.mock("@/components/ui/select", () => ({
   Select: ({ children, value, onValueChange }: any) => {
@@ -70,6 +71,7 @@ vi.mock("@/components/ui/select", () => ({
       data-value={value}
       onClick={() => {
         selectedValue = value;
+        onValueChangeCalls.push(value);
         onValueChangeCallbacks.forEach((cb) => cb(value));
       }}
     >
@@ -109,6 +111,7 @@ describe("UpdateMarkupForm", () => {
     vi.clearAllMocks();
     selectedValue = "contributor";
     onValueChangeCallbacks.length = 0;
+    onValueChangeCalls.length = 0;
   });
 
   describe("Rendering", () => {
@@ -201,18 +204,18 @@ describe("UpdateMarkupForm", () => {
   });
 
   describe("Role Change", () => {
-    it("Should call onValueChange when admin role is selected", async () => {
+    it("Should call onValueChange with admin when admin role is selected", async () => {
       render(<UpdateMarkupForm user={defaultUser} onSubmit={mockOnSubmit} />);
 
       const adminItem = screen.getByTestId("select-item-admin");
       await user.click(adminItem);
 
       await waitFor(() => {
-        expect(onValueChangeCallbacks.length).toBeGreaterThan(0);
+        expect(onValueChangeCalls).toContain("admin");
       });
     });
 
-    it("Should call onValueChange when contributor role is selected", async () => {
+    it("Should call onValueChange with contributor when contributor role is selected", async () => {
       const adminUser: UpdatedUserValues = {
         ...defaultUser,
         role: "admin",
@@ -236,7 +239,7 @@ describe("UpdateMarkupForm", () => {
       await user.click(contributorItem);
 
       await waitFor(() => {
-        expect(onValueChangeCallbacks.length).toBeGreaterThan(0);
+        expect(onValueChangeCalls).toContain("contributor");
       });
     });
   });
@@ -317,7 +320,7 @@ describe("UpdateMarkupForm", () => {
       await user.click(adminItem);
 
       await waitFor(() => {
-        expect(onValueChangeCallbacks.length).toBeGreaterThan(0);
+        expect(onValueChangeCalls).toContain("admin");
       });
 
       const submitButton = screen.getByRole("button", { name: "Mettre à jour" });
@@ -405,13 +408,13 @@ describe("UpdateMarkupForm", () => {
       expect(formContainer.className).toContain("custom-class");
     });
 
-    it("Should work without onSubmit callback", () => {
+    it("Should work without onSubmit callback", async () => {
       render(<UpdateMarkupForm user={defaultUser} />);
 
       const submitButton = screen.getByRole("button", { name: "Mettre à jour" });
       expect(submitButton).toBeInTheDocument();
 
-      expect(() => user.click(submitButton)).not.toThrow();
+      await user.click(submitButton);
     });
   });
 });

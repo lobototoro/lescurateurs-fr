@@ -49,15 +49,23 @@ vi.mock("@/components/editor-components/addUrls", () => ({
     <div data-testid="add-urls-objects">
       {urls.map((url: any, index: number) => (
         <div key={index} data-testid={`url-item-${index}`}>
-          <input data-testid={`url-value-${index}`} value={url.url} onChange={(e) => updateUrls(index, "url", e.target.value)} />
-          <select data-testid={`url-type-${index}`} value={url.type} onChange={(e) => updateUrls(index, "type", e.target.value)}>
+          <input
+            data-testid={`url-value-${index}`}
+            value={url.url}
+            onChange={(e) => updateUrls({ ...url, url: e.target.value }, index)}
+          />
+          <select
+            data-testid={`url-type-${index}`}
+            value={url.type}
+            onChange={(e) => updateUrls({ ...url, type: e.target.value }, index)}
+          >
             {Object.values(UrlsTypes).map((type) => (
               <option key={type} value={type}>
                 {type}
               </option>
             ))}
           </select>
-          <button onClick={() => removeInputs(index)}>Remove</button>
+          <button onClick={() => removeInputs()}>Remove</button>
         </div>
       ))}
       <button onClick={() => addInputs()}>Add URL</button>
@@ -80,13 +88,13 @@ vi.mock("@/lib/utils/addUrlsUtils", () => ({
       handleChange(currentUrls);
     };
 
-    const removeInputs = (index: number) => {
-      currentUrls = currentUrls.filter((_: any, i: number) => i !== index);
+    const removeInputs = () => {
+      currentUrls = currentUrls.slice(0, -1);
       handleChange(currentUrls);
     };
 
-    const updateUrls = (index: number, key: string, value: string) => {
-      currentUrls = currentUrls.map((url, i) => (i === index ? { ...url, [key]: value } : url));
+    const updateUrls = (newUrl: { type: UrlsTypes; url: string; credits?: string }, index: number) => {
+      currentUrls = currentUrls.map((url, i) => (i === index ? newUrl : url));
       handleChange(currentUrls);
     };
 
@@ -101,13 +109,13 @@ describe("formMarkup test suite", () => {
     title: z.string().min(1, "Title is required"),
     introduction: z.string().min(10, "Introduction must be at least 10 characters"),
     main: z.string().min(20, "Main content must be at least 20 characters"),
-    main_audio_url: z.string().url("Invalid URL").optional().or(z.literal("")),
-    url_to_main_illustration: z.string().url("Invalid URL").optional().or(z.literal("")),
+    main_audio_url: z.url({ message: "Invalid URL" }).optional().or(z.literal("")),
+    url_to_main_illustration: z.url({ message: "Invalid URL" }).optional().or(z.literal("")),
     urls: z
       .array(
         z.object({
           id: z.number(),
-          url: z.string().url("Invalid URL for additional URL"),
+          url: z.url({ message: "Invalid URL for additional URL" }),
           type: z.nativeEnum(UrlsTypes),
         }),
       )
@@ -327,14 +335,14 @@ describe("formMarkup test suite", () => {
     fireEvent.blur(urlInput1);
     expect(urlInput1).toHaveValue("https://test.com/url2");
 
-    const removeButton0 = urlItems[0].querySelector("button");
-    if (removeButton0) {
-      await user.click(removeButton0);
+    const removeButton1 = urlItems[1].querySelector("button");
+    if (removeButton1) {
+      await user.click(removeButton1);
     }
 
     urlItems = screen.getAllByTestId(/url-item-/);
     expect(urlItems).toHaveLength(1);
-    expect(screen.getByTestId("url-value-0")).toHaveValue("https://test.com/url2"); // Ensure the remaining item is correct
+    expect(screen.getByTestId("url-value-0")).toHaveValue("https://test.com/url1"); // Ensure the remaining item is correct
 
     // Fill in other required fields to enable submit button
     const titleInput = screen.getByTestId("title");

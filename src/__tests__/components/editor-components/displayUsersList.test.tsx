@@ -178,20 +178,35 @@ describe("DisplayUsersList", () => {
       expect(deleteButtons).toHaveLength(mockUsers.length); // All users have delete button due to simplified mock
     });
 
-    it("should render Delete button for current user", () => {
+    it("should not render Delete button for current user", () => {
+      const usersWithCurrentUser: User[] = [
+        ...mockUsers,
+        {
+          id: mockCurrentUser.id,
+          name: mockCurrentUser.name,
+          email: mockCurrentUser.email,
+          role: mockCurrentUser.role as "admin" | "contributor",
+          permissions: mockCurrentUser.permissions,
+          createdAt: mockCurrentUser.createdAt,
+          updatedAt: mockCurrentUser.updatedAt,
+          emailVerified: mockCurrentUser.emailVerified,
+          image: mockCurrentUser.image,
+        },
+      ];
+
       render(
         <DisplayUsersList
-          users={mockUsers}
+          users={usersWithCurrentUser}
           selectedUserAction={mockSelectedUserAction}
           setDeletedUserAction={mockSetDeletedUserAction}
           currentUser={mockCurrentUser}
         />,
       );
 
-      const userOneElement = screen.getByText("User One").closest("li");
-      const deleteButtons = userOneElement?.querySelectorAll("button");
+      const currentUserElement = screen.getByText(mockCurrentUser.name).closest("li");
+      const deleteButtons = currentUserElement?.querySelectorAll("button");
       const deleteButton = Array.from(deleteButtons || []).find((btn) => btn.textContent === "Delete");
-      expect(deleteButton).toBeDefined(); // Due to simplified mock, all users have delete button
+      expect(deleteButton).toBeUndefined();
     });
   });
 
@@ -299,16 +314,18 @@ describe("DisplayUsersList", () => {
     });
 
     it("should handle null or undefined users", () => {
-      render(
-        <DisplayUsersList
-          users={null as any}
-          selectedUserAction={mockSelectedUserAction}
-          setDeletedUserAction={mockSetDeletedUserAction}
-          currentUser={mockCurrentUser}
-        />,
-      );
+      for (const invalidUsers of [null, undefined]) {
+        render(
+          <DisplayUsersList
+            users={invalidUsers as any}
+            selectedUserAction={mockSelectedUserAction}
+            setDeletedUserAction={mockSetDeletedUserAction}
+            currentUser={mockCurrentUser}
+          />,
+        );
 
-      expect(screen.queryByText("User One")).not.toBeInTheDocument();
+        expect(screen.queryByText("User One")).not.toBeInTheDocument();
+      }
     });
 
     it("should handle user with no permissions", () => {
