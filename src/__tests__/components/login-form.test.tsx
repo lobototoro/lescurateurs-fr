@@ -133,6 +133,103 @@ describe("LoginForm test suite", () => {
     });
   });
 
+  it("Should show success toast when form is submitted successfully", async () => {
+    const { authClient } = await import("lib/auth/auth-client");
+    const { toast } = await import("sonner");
+
+    (authClient.signIn.email as ReturnType<typeof vi.fn>).mockImplementation((_, options) => {
+      options?.onSuccess?.();
+      return Promise.resolve({});
+    });
+
+    render(<LoginForm />);
+
+    const emailInput = screen.getByLabelText("Email");
+    const passwordInput = screen.getByLabelText("Password");
+    const submitButton = screen.getByRole("button", { name: "Login" });
+
+    await user.type(emailInput, "test@example.com");
+    await user.type(passwordInput, "password123");
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith("Form submitted successfully");
+    });
+  });
+
+  it("Should show error toast with 'Please verify your email address' when status is 403", async () => {
+    const { authClient } = await import("lib/auth/auth-client");
+    const { toast } = await import("sonner");
+
+    (authClient.signIn.email as ReturnType<typeof vi.fn>).mockImplementation((_, options) => {
+      options?.onError?.({ error: { status: 403, message: "Email not verified" } });
+      return Promise.resolve({});
+    });
+
+    render(<LoginForm />);
+
+    const emailInput = screen.getByLabelText("Email");
+    const passwordInput = screen.getByLabelText("Password");
+    const submitButton = screen.getByRole("button", { name: "Login" });
+
+    await user.type(emailInput, "test@example.com");
+    await user.type(passwordInput, "password123");
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith("Please verify your email address");
+    });
+  });
+
+  it("Should show generic 'Something went wrong' error toast for non-403 errors", async () => {
+    const { authClient } = await import("lib/auth/auth-client");
+    const { toast } = await import("sonner");
+
+    (authClient.signIn.email as ReturnType<typeof vi.fn>).mockImplementation((_, options) => {
+      options?.onError?.({ error: { status: 500 } });
+      return Promise.resolve({});
+    });
+
+    render(<LoginForm />);
+
+    const emailInput = screen.getByLabelText("Email");
+    const passwordInput = screen.getByLabelText("Password");
+    const submitButton = screen.getByRole("button", { name: "Login" });
+
+    await user.type(emailInput, "test@example.com");
+    await user.type(passwordInput, "password123");
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith("Something went wrong");
+    });
+  });
+
+  it("Should show custom error message when ctx.error.message is present", async () => {
+    const { authClient } = await import("lib/auth/auth-client");
+    const { toast } = await import("sonner");
+    const customErrorMessage = "Invalid credentials provided";
+
+    (authClient.signIn.email as ReturnType<typeof vi.fn>).mockImplementation((_, options) => {
+      options?.onError?.({ error: { status: 400, message: customErrorMessage } });
+      return Promise.resolve({});
+    });
+
+    render(<LoginForm />);
+
+    const emailInput = screen.getByLabelText("Email");
+    const passwordInput = screen.getByLabelText("Password");
+    const submitButton = screen.getByRole("button", { name: "Login" });
+
+    await user.type(emailInput, "test@example.com");
+    await user.type(passwordInput, "wrongpassword");
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith(customErrorMessage);
+    });
+  });
+
   it("Should have forgot password link pointing to requestResetPassword", () => {
     render(<LoginForm />);
 
